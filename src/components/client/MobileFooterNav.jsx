@@ -13,14 +13,14 @@ export default function MobileFooterNav() {
         <span>Wishlist</span>
       </a>
 
-      {/* <a href="/" className="nav-item">
+      <a href="/" className="nav-item">
         <Handbag />
         <span>Cart</span>
-      </a> */}
-      <a href="/" className="nav-item">
+      </a>
+      {/* <a href="/" className="nav-item">
         <img src="./WhatsApp.png" alt="" />
         <span>Contact</span>
-      </a>
+      </a> */}
       <a href="/account" className="nav-item">
         <User />
         <span>Account</span>

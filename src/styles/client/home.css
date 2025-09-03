@@ -119,6 +119,23 @@ section {
   font-family: "Jost", "Futura PT", sans-serif;
   color: #1a1a1a;
 }
+.new-arrival-products {
+  display: flex;
+  gap: 1rem; /* space between items */
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none; /* hide scrollbar in Firefox */
+}
+
+.new-arrival-products::-webkit-scrollbar {
+  display: none; /* hide scrollbar in Chrome/Safari */
+}
+
+.new-arrival-product-card {
+  flex: 0 0 auto; /* prevent shrinking */
+  scroll-snap-align: start;
+}
 
 /* Products Grid */
 .new-arrival-products {
@@ -653,4 +670,25 @@ h2.customized .inline-avatar {
   margin-bottom: 1rem;
   display: block;
   color: var(--footer-muted);
+}
+
+.contact-whatsapp {
+  position: fixed;
+  bottom: 60px;
+  right: 10px;
+  background-color: #f8f8f8;
+  padding: 10px;
+  border-radius: 30px;
+  display: none;
+  z-index: 1000;
+}
+
+.contact-whatsapp img {
+  height: 30px;
+  width: 30px;
+  object-fit: cover;
+}
+
+.desktop-links {
+  display: none;
 }

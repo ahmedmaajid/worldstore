@@ -21,7 +21,7 @@ export default function Home({ openSidebar }) {
           <h2>World Store</h2>
           <p>This is a dynamic e-commerce platform</p>
         </div>
-        <h2 className="customized">
+        {/* <h2 className="customized">
           Shop good,{" "}
           <span className="highlight">
             <StarsIcon />
@@ -32,7 +32,10 @@ export default function Home({ openSidebar }) {
           last long, without ever
           <img src="./Handbag.png" alt="user" className="inline-avatar" />
           stretching your budget{" "}
-        </h2>
+        </h2> */}
+        <a href="" className="contact-whatsapp">
+          <img src="./WhatsAppLogo.png" alt="" />
+        </a>
       </div>
       <NewArrivals />
       <Categories openSidebar={openSidebar} />

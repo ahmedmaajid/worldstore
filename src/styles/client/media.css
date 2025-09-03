@@ -1,4 +1,18 @@
 @media (min-width: 568px) {
+  .desktop-links {
+    display: block;
+  }
+  .hero .new {
+    bottom: -40px;
+  }
+
+  .hero h2 {
+    font-size: 4.5rem;
+  }
+
+  .hero p {
+    font-size: 18px;
+  }
   h2.customized {
     font-size: 2rem;
   }
@@ -29,10 +43,19 @@
   section {
     padding: 2rem 2rem !important;
   }
+  .new-arrival-products .new-arrival-product-card {
+    flex: 1;
+    min-width: 250px;
+  }
   .new-arrival-products {
     grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
     gap: 2rem;
     width: 100%;
+
+    gap: 2rem;
+    width: 100%;
+    overflow: auto;
+    display: flex;
   }
 
   .explore-categories-grid {
@@ -59,7 +82,39 @@
     /* height: 85vh; */
   }
 }
+.new {
+  position: absolute;
+  font-family: Instrument Serif;
+  z-index: 4;
+  bottom: 120px;
+  bottom: 150px;
+  letter-spacing: 1px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
 
+.new p {
+  font-family: "Fustat";
+  font-size: 16px;
+  letter-spacing: 0.3px;
+}
+
+.new p {
+  font-family: Fustat;
+  font-size: 17px;
+  letter-spacing: -0.3px;
+  color: #222;
+  font-weight: 400;
+}
+.new h2 {
+  font-family: Instrument Serif;
+  font-style: italic;
+  font-size: 2.3rem;
+  color: #666;
+  font-weight: normal;
+}
 @media (max-width: 768px) {
   h2.customized {
     font-size: 1.7rem;
@@ -67,6 +122,22 @@
   }
 }
 @media (max-width: 567px) {
+  .contact-whatsapp {
+    display: block;
+  }
+  .hero-logo {
+    position: absolute;
+    /* top: 20px; */
+    top: -40px;
+  }
+  .new-arrival-section {
+    margin-top: -5rem;
+  }
+
+  h2.customized {
+    display: none;
+  }
+
   .mobile-footer-nav .nav-item {
     /* font-size: 13px; */
   }
@@ -134,5 +205,11 @@
   }
   .explore-categories-card span {
     font-size: 14px;
+  }
+}
+
+@media (max-width: 324px) {
+  .new p {
+    font-size: 15.5px;
   }
 }

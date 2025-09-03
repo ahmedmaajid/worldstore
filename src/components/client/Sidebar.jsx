@@ -5,11 +5,11 @@ import { Link } from "react-router-dom";
 export default function Sidebar({ isOpen, onClose }) {
   // Dummy categories
   const categories = [
-    { id: 1, name: "Bags", path: "/bags" },
-    { id: 2, name: "Shoes", path: "/shoes" },
-    { id: 3, name: "Accessories", path: "/accessories" },
-    { id: 4, name: "Watches", path: "/watches" },
-    { id: 5, name: "Sunglasses", path: "/sunglasses" },
+    { id: 1, name: "New Arrival", path: "/bags" },
+    { id: 2, name: "Home Needs", path: "/shoes" },
+    { id: 4, name: "Cosmetic Items", path: "/watches" },
+    { id: 3, name: "Phone Accessories", path: "/accessories" },
+    { id: 5, name: "Foreign Mart", path: "/sunglasses" },
   ];
 
   return (
@@ -28,7 +28,7 @@ export default function Sidebar({ isOpen, onClose }) {
         </button>
 
         <nav className="sidebar-nav">
-          <ul>
+          <ul className="desktop-links">
             <span className="sidebar-nav-span">Quick Links</span>
             <li>
               <Store /> <span>Shop</span>

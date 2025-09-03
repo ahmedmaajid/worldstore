@@ -32,6 +32,21 @@ export const NewArrivals = () => {
       image:
         "https://in.louisvuitton.com/images/is/image/lv/1/PP_VP_L/louis-vuitton-neonoe-mm--M45256_PM2_Front%20view.png?wid=490&hei=490",
     },
+
+    {
+      id: 3,
+      name: "Silk Scarf",
+      price: 1449.0,
+      image:
+        "https://media.gucci.com/style/White_South_0_160_316x316/1752512502/847034_ZATF9_1504_001_100_0000_Light-GG-silk-jacquard-shirt.jpg",
+    },
+    {
+      id: 4,
+      name: "Designer Shoes",
+      price: 2399.0,
+      image:
+        "https://in.louisvuitton.com/images/is/image/lv/1/PP_VP_L/louis-vuitton-low-key-all-in-bb--M25543_PM2_Front%20view.png?wid=490&hei=490",
+    },
   ];
 
   return (
