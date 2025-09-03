@@ -1,0 +1,138 @@
+@media (min-width: 568px) {
+  h2.customized {
+    font-size: 2rem;
+  }
+  .banner-text-overlay h1 {
+    font-size: 5rem;
+  }
+  .banner-text-overlay p {
+    font-size: 1.1rem;
+  }
+  .hero-logo {
+    height: 700px;
+    top: -150px;
+  }
+  div.section-heading {
+    max-width: 400px;
+  }
+  .explore-categories .section-heading {
+    max-width: 600px;
+  }
+  .section-heading h2 {
+    font-size: 3rem;
+  }
+
+  .section-heading p {
+    font-size: 18px;
+  }
+
+  section {
+    padding: 2rem 2rem !important;
+  }
+  .new-arrival-products {
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: 2rem;
+    width: 100%;
+  }
+
+  .explore-categories-grid {
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: 2rem;
+  }
+  .footer {
+    padding: 1rem 10px;
+  }
+  .mobile-footer-nav {
+    display: none;
+  }
+}
+
+@media (min-width: 414px) {
+}
+
+@media (max-width: 1080px) {
+  h2.customized {
+    max-width: 75vw;
+  }
+  .hero {
+    height: 480px;
+    /* height: 85vh; */
+  }
+}
+
+@media (max-width: 768px) {
+  h2.customized {
+    font-size: 1.7rem;
+    max-width: 90vw;
+  }
+}
+@media (max-width: 567px) {
+  .mobile-footer-nav .nav-item {
+    /* font-size: 13px; */
+  }
+  h2.customized {
+    font-size: 1.4rem;
+  }
+
+  h2.customized .inline-avatar {
+    height: 42px;
+    width: 42px;
+  }
+}
+@media (max-width: 444px) {
+  h2.customized {
+    max-width: 95vw;
+    font-size: 1.2rem;
+  }
+}
+@media (max-width: 414px) {
+  h2.customized {
+    width: 92vw;
+  }
+
+  h2.customized .inline-avatar {
+    height: 35px;
+    width: 35px;
+  }
+  .new-arrival-products {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .explore-categories-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .products .product-name {
+    font-size: 14px;
+  }
+  .mobile-footer-nav .nav-item {
+    font-size: 12.5px;
+  }
+  .mobile-footer-nav .nav-item svg {
+    height: 22px;
+    width: 22px;
+  }
+  .mobile-footer-nav .nav-item img {
+    width: 23px;
+    height: 23px;
+  }
+}
+
+@media (max-width: 360px) {
+  .faq__q {
+    font-size: 15px;
+  }
+  .faq__a {
+    font-size: 14px;
+  }
+  .mobile-footer-nav {
+    height: 60px;
+  }
+  .mobile-footer-nav .nav-item {
+    display: flex;
+    flex-direction: column;
+  }
+  .explore-categories-card span {
+    font-size: 14px;
+  }
+}
