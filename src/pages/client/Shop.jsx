@@ -2,7 +2,8 @@ import React, { useState } from "react";
 import "../../styles/client/shop.css";
 import Filter from "../../components/client/Filter";
 import { Menu } from "lucide-react";
-import SortDropdown from "../../components/client/SortDropDown";
+import SortDropdown from "../../components/client/SortDropdown";
+
 // New array of category and subcategory objects
 const CATEGORIES = [
   {
