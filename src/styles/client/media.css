@@ -150,12 +150,73 @@
     width: 42px;
   }
 }
-@media (max-width: 444px) {
+@media (max-width: 460px) {
   h2.customized {
     max-width: 95vw;
     font-size: 1.2rem;
   }
+  .shop-page-container .product-grid-container .product-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
 }
+
+/* --- New Media Query for Small Screens --- */
+@media (max-width: 414px) {
+  .shop-page-container .product-grid-container {
+    padding: 10px;
+  }
+
+  .shop-page-container .product-grid-container .product-grid .product-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+  }
+
+  .shop-page-container .product-grid-container .product-grid .product-card {
+    height: 250px; /* Set a fixed height for all cards on small screens */
+    display: flex;
+    flex-direction: column;
+  }
+
+  .shop-page-container
+    .product-grid-container
+    .product-grid
+    .product-card
+    .product-image-container {
+    height: 70%; /* Image container height relative to card height */
+    padding: 5px;
+  }
+
+  .shop-page-container
+    .product-grid-container
+    .product-grid
+    .product-card
+    .product-image {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain; /* Ensures the whole image is visible */
+  }
+
+  .shop-page-container
+    .product-grid-container
+    .product-grid
+    .product-card
+    .product-info {
+    padding: 10px 5px;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .shop-page-container
+    .product-grid-container
+    .product-grid
+    .product-card
+    .product-price {
+    font-size: 1em; /* Smaller font size for product price */
+  }
+}
+
 @media (max-width: 414px) {
   h2.customized {
     width: 92vw;
@@ -213,3 +274,5 @@
     font-size: 15.5px;
   }
 }
+
+/* All previous CSS code remains unchanged */

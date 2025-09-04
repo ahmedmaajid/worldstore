@@ -103,7 +103,11 @@ export default function Navbar() {
 
       <div className={`search-overlay ${searchOpen ? "open" : ""}`}>
         {/* Close button */}
-        <button className="close-btn" onClick={handleClose}>
+        <button
+          className="close-btn"
+          style={{ display: "block" }}
+          onClick={handleClose}
+        >
           <X />
         </button>
 
