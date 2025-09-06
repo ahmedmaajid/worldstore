@@ -6,8 +6,8 @@ export default function Sidebar({ isOpen, onClose }) {
   // Dummy categories
   const categories = [
     { id: 1, name: "New Arrival", path: "/bags" },
-    { id: 2, name: "Home Needs", path: "/shoes" },
-    { id: 4, name: "Cosmetic Items", path: "/watches" },
+    { id: 2, name: "Home Needs", path: "/home-needs" },
+    { id: 4, name: "Cosmetic Items", path: "/cosmetic-items" },
     { id: 3, name: "Phone Accessories", path: "/accessories" },
     { id: 5, name: "Foreign Mart", path: "/sunglasses" },
   ];
@@ -49,7 +49,7 @@ export default function Sidebar({ isOpen, onClose }) {
             <span className="sidebar-nav-span">Categories</span>
             {categories.map((cat) => (
               <li key={cat.id}>
-                <Link to={cat.path}>{cat.name}</Link>
+                <Link to={`/shop/category${cat.path}`}>{cat.name}</Link>
               </li>
             ))}
           </ul>

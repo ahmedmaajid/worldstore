@@ -1,7 +1,11 @@
-import React from "react";
+import React, { useRef } from "react";
 import { formatPrice } from "../../utils/formatPrice";
 import { Link } from "react-router-dom";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+
 export const NewArrivals = () => {
+  const scrollContainerRef = useRef(null);
+
   const products = [
     {
       id: 1,
@@ -49,6 +53,24 @@ export const NewArrivals = () => {
     },
   ];
 
+  const scrollLeft = () => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollBy({
+        left: -300,
+        behavior: "smooth",
+      });
+    }
+  };
+
+  const scrollRight = () => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollBy({
+        left: 300,
+        behavior: "smooth",
+      });
+    }
+  };
+
   return (
     <section className="new-arrival-section">
       <div className="section-heading">
@@ -59,21 +81,76 @@ export const NewArrivals = () => {
         </p>
       </div>
 
-      <div className="products new-arrival-products">
-        {products.map((product) => (
-          <Link to="/" key={product.id} className="new-arrival-product-card">
-            <img
-              src={product.image}
-              alt={product.name}
-              className="new-arrival-product-image"
-            />
-            <div className="new-arrival-product-info">
-              <h3 className="product-name">{product.name}</h3>
-              <span className="price">{formatPrice(product.price)}</span>
-            </div>
-          </Link>
-        ))}
+      <div style={{ position: "relative", width: "100%" }}>
+        {/* Left Arrow */}
+        <button
+          className="chevron-btn"
+          onClick={scrollLeft}
+          style={{
+            position: "absolute",
+            left: "-20px",
+            top: "50%",
+            transform: "translateY(-50%)",
+            zIndex: 2,
+            backgroundColor: "white",
+            border: "1px solid #e5e5e5",
+            borderRadius: "50%",
+            width: "40px",
+            height: "40px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            cursor: "pointer",
+            boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+            transition: "all 0.2s ease",
+          }}
+        >
+          <ChevronLeft size={20} color="#333" />
+        </button>
+
+        {/* Right Arrow */}
+        <button
+          className="chevron-btn"
+          onClick={scrollRight}
+          style={{
+            position: "absolute",
+            right: "-20px",
+            top: "50%",
+            transform: "translateY(-50%)",
+            zIndex: 2,
+            backgroundColor: "white",
+            border: "1px solid #e5e5e5",
+            borderRadius: "50%",
+            width: "40px",
+            height: "40px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            cursor: "pointer",
+            boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+            transition: "all 0.2s ease",
+          }}
+        >
+          <ChevronRight size={20} color="#333" />
+        </button>
+
+        <div ref={scrollContainerRef} className="products new-arrival-products">
+          {products.map((product) => (
+            <Link to="/" key={product.id} className="new-arrival-product-card">
+              <img
+                src={product.image}
+                alt={product.name}
+                className="new-arrival-product-image"
+              />
+              <div className="new-arrival-product-info">
+                <h3 className="product-name">{product.name}</h3>
+                <span className="price">{formatPrice(product.price)}</span>
+              </div>
+            </Link>
+          ))}
+        </div>
       </div>
+
       <Link to="/shop" className="btn btn-discover">
         Discover More
       </Link>

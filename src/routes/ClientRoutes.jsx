@@ -9,6 +9,8 @@ export default function ClientRoutes({ openSidebar }) {
       <Route path="/" element={<Home openSidebar={openSidebar} />} />
       <Route path="/product/:id" element={<Product />} />
       <Route path="/shop" element={<Shop />} />
+      <Route path="/shop/category/:category" element={<Shop />} />
+      <Route path="/shop/category/:category/:subcategory" element={<Shop />} />
     </Routes>
   );
 }

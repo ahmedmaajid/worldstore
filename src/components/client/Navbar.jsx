@@ -78,7 +78,7 @@ export default function Navbar() {
           {/* World Store */}
           {/* <img src="./World Store.jpg" alt="" /> */}
           <img
-            src="./World_Store-removebg-preview.png
+            src="/World_Store-removebg-preview.png
           "
             alt=""
           />

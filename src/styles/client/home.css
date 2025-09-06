@@ -396,17 +396,6 @@ h2.customized .inline-avatar {
   overflow: hidden;
 }
 
-/* Desktop: 2-column layout */
-@media (min-width: 768px) {
-  .faq {
-    grid-template-columns: 1fr 1.5fr;
-    align-items: start;
-  }
-  .faq__title {
-    font-size: 1.8rem;
-  }
-}
-
 /* Summary */
 .faq__q {
   list-style: none;
@@ -623,7 +612,8 @@ h2.customized .inline-avatar {
 }
 
 /* Close button */
-.sidebar .close-btn {
+.sidebar .close-btn,
+.close-btn.close-btn-solo {
   background: none;
   border: none;
   font-size: 1rem;
@@ -634,6 +624,23 @@ h2.customized .inline-avatar {
   left: 0;
   display: flex;
   margin-bottom: 2rem;
+}
+
+.close-btn-solo {
+  display: block;
+}
+/* Desktop: 2-column layout */
+@media (min-width: 768px) {
+  .faq {
+    grid-template-columns: 1fr 1.5fr;
+    align-items: start;
+  }
+  .faq__title {
+    font-size: 1.8rem;
+  }
+  .close-btn-solo {
+    display: none !important;
+  }
 }
 
 /* Sidebar nav */
