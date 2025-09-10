@@ -1,0 +1,30 @@
+import React from "react";
+import { Store, Heart, Home, User, Handbag } from "lucide-react";
+
+export default function MobileFooterNav() {
+  return (
+    <nav className="mobile-footer-nav">
+      <a href="/shop" className="nav-item">
+        <Store />
+        <span>Shop</span>
+      </a>
+      <a href="/wishlist" className="nav-item">
+        <Heart />
+        <span>Wishlist</span>
+      </a>
+
+      <a href="/" className="nav-item">
+        <Handbag />
+        <span>Cart</span>
+      </a>
+      {/* <a href="/" className="nav-item">
+        <img src="./WhatsApp.png" alt="" />
+        <span>Contact</span>
+      </a> */}
+      <a href="/account" className="nav-item">
+        <User />
+        <span>Account</span>
+      </a>
+    </nav>
+  );
+}
