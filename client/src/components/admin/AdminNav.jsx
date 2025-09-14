@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Link } from "react-router-dom";
 import {
   Menu,
   X,
@@ -10,6 +11,7 @@ import {
   Bell,
   Search,
   User,
+  Boxes,
 } from "lucide-react";
 
 export const AdminNav = () => {
@@ -18,7 +20,8 @@ export const AdminNav = () => {
   const menuItems = [
     { icon: Home, label: "Dashboard", active: true },
     { icon: BarChart3, label: "Analytics" },
-    { icon: Package, label: "Products" },
+    { icon: Package, label: "Products", link: "/admin/products" },
+    { icon: Boxes, label: "Categories", link: "/admin/categories" },
     { icon: Users, label: "Customers" },
     { icon: Bell, label: "Orders" },
     { icon: Settings, label: "Settings" },
@@ -54,10 +57,10 @@ export const AdminNav = () => {
               key={index}
               className={`nav-item ${item.active ? "active" : ""}`}
             >
-              <a href="#" className="nav-link">
+              <Link to={item.link} className="nav-link">
                 <item.icon size={18} />
                 <span>{item.label}</span>
-              </a>
+              </Link>
             </li>
           ))}
         </ul>

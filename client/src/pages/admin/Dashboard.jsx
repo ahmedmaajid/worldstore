@@ -8,11 +8,12 @@ import {
   Eye,
   ArrowUpRight,
 } from "lucide-react";
+import { Link } from "react-router-dom";
 
 export default function Dashboard() {
   const stats = [
     {
-      title: "Total Revenue",
+      title: "Total price",
       value: "$124,856",
       change: "+12.5%",
       trend: "up",
@@ -83,18 +84,43 @@ export default function Dashboard() {
     {
       name: "Premium Leather Handbag",
       sales: 89,
-      revenue: "$21,780",
+      description:
+        "Lorem ipsum dolor sit amet consectetur adipisicing elit. Nostrum dolor doloremque adipisci recusandae beatae in, facere deleniti perferendis cumque quasi dicta",
+      price: "$21,780",
       trend: "up",
     },
-    { name: "Silk Evening Dress", sales: 67, revenue: "$18,900", trend: "up" },
+    {
+      name: "Silk Evening Dress",
+      description:
+        "Lorem ipsum dolor sit amet consectetur adipisicing elit. Nostrum dolor doloremque adipisci recusandae beatae in, facere deleniti perferendis cumque quasi dicta",
+      sales: 67,
+      price: "$18,900",
+      trend: "up",
+    },
     {
       name: "Gold Watch Collection",
       sales: 45,
-      revenue: "$31,500",
+      description:
+        "Lorem ipsum dolor sit amet consectetur adipisicing elit. Nostrum dolor doloremque adipisci recusandae beatae in, facere deleniti perferendis cumque quasi dicta",
+      price: "$31,500",
       trend: "down",
     },
-    { name: "Diamond Jewelry Set", sales: 34, revenue: "$28,200", trend: "up" },
-    { name: "Cashmere Coat", sales: 29, revenue: "$14,500", trend: "up" },
+    {
+      name: "Diamond Jewelry Set",
+      description:
+        "Lorem ipsum dolor sit amet consectetur adipisicing elit. Nostrum dolor doloremque adipisci recusandae beatae in, facere deleniti perferendis cumque quasi dicta",
+      sales: 34,
+      price: "$28,200",
+      trend: "up",
+    },
+    {
+      name: "Cashmere Coat",
+      sales: 29,
+      description:
+        "Lorem ipsum dolor sit amet consectetur adipisicing elit. Nostrum dolor doloremque adipisci recusandae beatae in, facere deleniti perferendis cumque quasi dicta",
+      price: "$14,500",
+      trend: "up",
+    },
   ];
 
   return (
@@ -169,24 +195,21 @@ export default function Dashboard() {
         {/* Top Products */}
         <div className="content-card">
           <div className="card-header">
-            <h2 className="card-title">Top Products</h2>
+            <h2 className="card-title">Recent Products</h2>
           </div>
           <div className="products-list">
             {topProducts.map((product, index) => (
               <div key={index} className="product-item">
                 <div className="product-info">
-                  <h4 className="product-name">{product.name}</h4>
-                  <p className="product-sales">{product.sales} units sold</p>
+                  <Link to="#" className="product-name">
+                    {product.name}
+                  </Link>
+                  <p className="product-description">
+                    {product.description} units sold
+                  </p>
                 </div>
                 <div className="product-stats">
-                  <span className="product-revenue">{product.revenue}</span>
-                  <div className={`product-trend ${product.trend}`}>
-                    {product.trend === "up" ? (
-                      <TrendingUp size={14} />
-                    ) : (
-                      <TrendingDown size={14} />
-                    )}
-                  </div>
+                  <span className="product-price">{product.price}</span>
                 </div>
               </div>
             ))}

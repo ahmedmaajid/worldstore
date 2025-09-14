@@ -16,11 +16,11 @@ export default function Home({ openSidebar }) {
         <div className="overlay"></div>
         <img className="hero-logo" src="./World Store.jpg" alt="" />
         {/* <img src="./World_Store-removebg-preview.png" alt="" /> */}
-
         <div className="new">
           <h2>World Store</h2>
           <p>This is a dynamic e-commerce platform</p>
         </div>
+
         {/* <h2 className="customized">
           Shop good,{" "}
           <span className="highlight">
@@ -38,7 +38,7 @@ export default function Home({ openSidebar }) {
         </a>
       </div>
       <NewArrivals />
-      <Categories openSidebar={openSidebar} />
+      {/* <Categories openSidebar={openSidebar} /> */}
       <MiddleBanner />
       <FAQ />
       <Footer />

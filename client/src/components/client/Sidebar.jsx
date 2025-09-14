@@ -1,5 +1,5 @@
 import React from "react";
-import { Heart, Handbag, User, X, Store } from "lucide-react";
+import { Heart, Handbag, User, X, Store, Home } from "lucide-react";
 import { Link } from "react-router-dom";
 
 export default function Sidebar({ isOpen, onClose }) {
@@ -30,6 +30,9 @@ export default function Sidebar({ isOpen, onClose }) {
         <nav className="sidebar-nav">
           <ul className="desktop-links">
             <span className="sidebar-nav-span">Quick Links</span>
+            <Link to="/">
+              <Home /> <span>Home</span>
+            </Link>
             <Link to={"/shop"}>
               <Store /> <span>Shop</span>
             </Link>

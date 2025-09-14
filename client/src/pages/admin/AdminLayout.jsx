@@ -5,10 +5,13 @@ import "../../styles/admin/dashboard.css";
 import "../../styles/admin/adminNav.css";
 
 export const AdminLayout = () => {
+  const mainStyle = {};
   return (
     <>
-      <AdminNav />
-      <Outlet />
+      <main className="dashboard-main" style={mainStyle}>
+        <AdminNav />
+        <Outlet />
+      </main>
     </>
   );
 };
