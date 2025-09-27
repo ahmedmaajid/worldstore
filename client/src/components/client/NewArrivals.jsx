@@ -2,56 +2,25 @@ import React, { useRef } from "react";
 import { formatPrice } from "../../utils/formatPrice";
 import { Link } from "react-router-dom";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useEffect } from "react";
+import { getProducts } from "../../api/products";
+import { useState } from "react";
 
 export const NewArrivals = () => {
   const scrollContainerRef = useRef(null);
+  const [products, setProducts] = useState([]);
+  async function getData() {
+    const allProducts = await getProducts();
+    console.log(allProducts);
 
-  const products = [
-    {
-      id: 1,
-      name: "Classic Leather Bag",
-      price: 2909.0,
-      image:
-        "https://media.gucci.com/style/White_South_0_160_316x316/1748967318/834460_AAE1D_3441_001_100_0000_Light-Gucci-Savoy-medium-duffle-bag.jpg",
-    },
+    // take only first 6
+    const sixProducts = allProducts.slice(0, 6);
+    setProducts(sixProducts);
+  }
 
-    {
-      id: 3,
-      name: "Silk Scarf",
-      price: 1449.0,
-      image:
-        "https://media.gucci.com/style/White_South_0_160_316x316/1752512502/847034_ZATF9_1504_001_100_0000_Light-GG-silk-jacquard-shirt.jpg",
-    },
-    {
-      id: 4,
-      name: "Designer Shoes",
-      price: 2399.0,
-      image:
-        "https://in.louisvuitton.com/images/is/image/lv/1/PP_VP_L/louis-vuitton-low-key-all-in-bb--M25543_PM2_Front%20view.png?wid=490&hei=490",
-    },
-    {
-      id: 5,
-      name: "Minimalist Sunglasses",
-      price: 2199.0,
-      image:
-        "https://in.louisvuitton.com/images/is/image/lv/1/PP_VP_L/louis-vuitton-neonoe-mm--M45256_PM2_Front%20view.png?wid=490&hei=490",
-    },
-
-    {
-      id: 3,
-      name: "Silk Scarf",
-      price: 1449.0,
-      image:
-        "https://media.gucci.com/style/White_South_0_160_316x316/1752512502/847034_ZATF9_1504_001_100_0000_Light-GG-silk-jacquard-shirt.jpg",
-    },
-    {
-      id: 4,
-      name: "Designer Shoes",
-      price: 2399.0,
-      image:
-        "https://in.louisvuitton.com/images/is/image/lv/1/PP_VP_L/louis-vuitton-low-key-all-in-bb--M25543_PM2_Front%20view.png?wid=490&hei=490",
-    },
-  ];
+  useEffect(() => {
+    getData();
+  }, []);
 
   const scrollLeft = () => {
     if (scrollContainerRef.current) {
@@ -136,15 +105,59 @@ export const NewArrivals = () => {
 
         <div ref={scrollContainerRef} className="products new-arrival-products">
           {products.map((product) => (
-            <Link to="/" key={product.id} className="new-arrival-product-card">
+            <Link
+              to={`/product/${product.slug}`}
+              key={product._id}
+              className="new-arrival-product-card"
+            >
               <img
-                src={product.image}
+                src={product.mainImages[0]}
                 alt={product.name}
                 className="new-arrival-product-image"
               />
               <div className="new-arrival-product-info">
                 <h3 className="product-name">{product.name}</h3>
-                <span className="price">{formatPrice(product.price)}</span>
+                <p className="shop-product-description">
+                  {product.description}
+                </p>
+
+                {product.price > 0 ? (
+                  <div>
+                    {/* if discount show both */}
+                    {product.discountPrice ? (
+                      <>
+                        <span className="price line-through">
+                          {formatPrice(product.price)}
+                        </span>
+                        <span className="price discount">
+                          {formatPrice(product.discountPrice)}
+                        </span>
+                      </>
+                    ) : (
+                      <span className="price">
+                        {formatPrice(product.price)}
+                      </span>
+                    )}
+                  </div>
+                ) : (
+                  <div>
+                    {/* price comes from first variation */}
+                    {product.variations && product.variations.length > 0 ? (
+                      <>
+                        <span className="price">
+                          {formatPrice(product.variations[0].price)}
+                        </span>
+                        {product.variations[0].discountPrice && (
+                          <span className="price discount">
+                            {formatPrice(product.variations[0].discountPrice)}
+                          </span>
+                        )}
+                      </>
+                    ) : (
+                      <span className="price">N/A</span>
+                    )}
+                  </div>
+                )}
               </div>
             </Link>
           ))}

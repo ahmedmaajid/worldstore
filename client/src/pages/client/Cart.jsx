@@ -4,6 +4,10 @@ import OrderConfirmation from "../../components/client/OrderConfirmation";
 import "../../styles/client/checkout.css";
 import { useNavigate } from "react-router-dom";
 import { checkAuth } from "../../api/checkAuth";
+import { getCartItems, removeCartItem } from "../../api/products";
+import { getCommerceData } from "../../api/admin.js";
+import { ConfirmationDialog } from "../../components/client/ConfirmationDialog.jsx";
+import PopMessage from "../../components/client/PopMessage.jsx";
 
 export const Cart = () => {
   const [cartItems, setCartItems] = useState([]);
@@ -11,7 +15,29 @@ export const Cart = () => {
   const [promoCode, setPromoCode] = useState("");
   const [appliedPromo, setAppliedPromo] = useState(null);
   const [animatedItems, setAnimatedItems] = useState([]);
-  const [step, setStep] = useState("cart"); // Add state for the checkout step
+  const [step, setStep] = useState("cart");
+
+  // Commerce data states
+  const [commerceData, setCommerceData] = useState(null);
+  const [shippingFee, setShippingFee] = useState(0);
+  const [freeShippingOver, setFreeShippingOver] = useState(0);
+  const [coupons, setCoupons] = useState([]);
+
+  const [confirmationData, setConfirmationData] = useState(null);
+
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState(null);
+
+  const [popUp, setPopUp] = useState({
+    state: false,
+    message: "",
+    status: null,
+  });
+
+  const askRemoveItem = (id) => {
+    setItemToDelete(id);
+    setShowConfirm(true);
+  };
 
   useEffect(() => {
     const mainContent = document.querySelector(".main-content");
@@ -37,102 +63,163 @@ export const Cart = () => {
     verify();
   }, [navigate]);
 
-  useEffect(() => {
-    // Simulate loading cart items
-    setTimeout(() => {
-      const items = [
-        {
-          id: 1,
-          name: "MONOGRAM CANVAS HANDBAG",
-          subtitle: "NOIR COLLECTION",
-          collection: "FALL/WINTER 2024",
-          color: "Monogram Brown",
-          size: "ONE SIZE",
-          quantity: 1,
-          price: 2850,
-          originalPrice: 2850,
-          image: "/Watch.png",
-          sku: "M44875",
-          inStock: true,
+  async function getData() {
+    try {
+      setIsLoading(true);
+
+      // Get commerce data first
+      const commerceData = await getCommerceData();
+      console.log("Commerce Data:", commerceData);
+
+      if (commerceData.length > 0) {
+        const shop = commerceData[0];
+        setCommerceData(shop);
+
+        // Set shipping fee - handle null values
+        const shippingFeeValue =
+          shop.shippingFee !== null ? shop.shippingFee : 350;
+        setShippingFee(shippingFeeValue);
+
+        // Set free shipping threshold - handle null values
+        const freeShippingValue =
+          shop.freeShippingOver !== null ? shop.freeShippingOver : 5000;
+        setFreeShippingOver(freeShippingValue);
+
+        // Set coupons
+        setCoupons(shop.coupons || []);
+
+        console.log("Shipping Fee:", shippingFeeValue);
+        console.log("Free Shipping Over:", freeShippingValue);
+        console.log("Coupons:", shop.coupons);
+      }
+
+      // Get cart items
+      const items = await getCartItems();
+      console.log("Cart Items:", items);
+
+      // Transform the API data to match the expected format
+      // const transformedItems = items.map((item) => {
+      //   const variationParts = item.variationName?.split(" / ") || [];
+      //   return {
+      //     id: item._id,
+      //     name: item.productName,
+      //     subtitle: item.variationName || "PREMIUM COLLECTION",
+      //     collection: "FEATURED ITEMS",
+      //     color: variationParts[1] || "Standard",
+      //     size: variationParts[0] || "ONE SIZE",
+      //     quantity: item.quantity,
+      //     price: item.price,
+      //     originalPrice: item.price,
+      //     image: item.productImage || "/api/placeholder/120/120",
+      //     sku: item.variationId?.substring(18, 24).toUpperCase() || "N/A",
+      //     inStock: true,
+      //     estimatedDelivery: "3-5 business days",
+      //     onSale: false,
+      //     totalPrice: item.totalPrice,
+      //     variationId: item.variationId,
+      //     productId: item.productId,
+      //   };
+      // });
+
+      const transformedItems = items.map((item) => {
+        // Turn attributes object into readable string
+        const attributesText = Object.entries(item.attributes || {})
+          .map(([key, value]) => `${key}: ${value}`)
+          .join(" / ");
+
+        return {
+          id: item.id,
+          name: item.productName,
+          productId: item.productId._id || item.productId,
+          variationId: item.variationId,
+          subtitle: attributesText || "PREMIUM COLLECTION",
+          attributes: item.attributes || {},
+          quantity: item.quantity,
+          price: item.price,
+          originalPrice: item.price,
+          image: item.productImage || "/api/placeholder/120/120",
+          sku: item.variationId?.substring(18, 24).toUpperCase() || "N/A",
+          inStock: item.inStock,
           estimatedDelivery: "3-5 business days",
-        },
-        {
-          id: 2,
-          name: "LEATHER WALLET",
-          subtitle: "CLASSIC COLLECTION",
-          collection: "HERITAGE SERIES",
-          color: "Black",
-          size: "ONE SIZE",
-          quantity: 2,
-          price: 1450,
-          originalPrice: 1450,
-          image: "/Toy.png",
-          sku: "M60017",
-          inStock: true,
-          estimatedDelivery: "2-4 business days",
-        },
-        {
-          id: 3,
-          name: "SILK SCARF",
-          subtitle: "HERITAGE COLLECTION",
-          collection: "TIMELESS CLASSICS",
-          color: "Royal Blue",
-          size: "90x90cm",
-          quantity: 1,
-          price: 1600,
-          originalPrice: 1800,
-          image: "/api/placeholder/120/120",
-          sku: "H7001S",
-          inStock: true,
-          estimatedDelivery: "1-3 business days",
-          onSale: true,
-        },
-      ];
-      setCartItems(items);
+          totalPrice: item.totalPrice,
+        };
+      });
+
+      setCartItems(transformedItems);
       setIsLoading(false);
-      items.forEach((item, index) => {
+
+      // Animate items appearing
+      transformedItems.forEach((item, index) => {
         setTimeout(() => {
           setAnimatedItems((prev) => [...prev, item.id]);
         }, index * 150);
       });
-    }, 1200);
+    } catch (error) {
+      console.error("Failed to load cart items:", error);
+      setIsLoading(false);
+    }
+  }
+  useEffect(() => {
+    getData();
   }, []);
 
   const updateQuantity = (id, newQuantity) => {
     if (newQuantity < 1) return;
     setCartItems((items) =>
       items.map((item) =>
-        item.id === id ? { ...item, quantity: newQuantity } : item
+        item.id === id
+          ? {
+              ...item,
+              quantity: newQuantity,
+              totalPrice: item.price * newQuantity,
+            }
+          : item
       )
     );
   };
 
-  const removeItem = (id) => {
-    setCartItems((items) => items.filter((item) => item.id !== id));
-    setAnimatedItems((prev) => prev.filter((itemId) => itemId !== id));
+  const removeItem = async () => {
+    if (!itemToDelete) return;
+
+    try {
+      const deletion = await removeCartItem(itemToDelete);
+      console.log("Deletion", deletion);
+      setPopUp({ state: true, status: "success", message: deletion.message });
+      getData();
+    } catch (error) {
+      console.error("Delete failed:", error);
+      setPopUp({ state: true, status: error, message: error });
+    } finally {
+      setShowConfirm(false);
+      setItemToDelete(null);
+    }
   };
 
   const applyPromoCode = () => {
-    const validCodes = {
-      LUXURY10: {
-        discount: 0.1,
-        type: "percentage",
-        description: "10% off your order",
-      },
-      WELCOME200: {
-        discount: 200,
-        type: "fixed",
-        description: "$200 off orders over $3000",
-      },
-      FREESHIP: { discount: 0, type: "shipping", description: "Free shipping" },
-    };
+    const code = promoCode.toUpperCase().trim();
+    if (!code) return;
 
-    if (validCodes[promoCode.toUpperCase()]) {
+    const coupon = coupons.find((c) => c.code?.toUpperCase() === code);
+
+    if (coupon) {
       setAppliedPromo({
-        code: promoCode.toUpperCase(),
-        ...validCodes[promoCode.toUpperCase()],
+        code: coupon.code,
+        discountType: coupon.discountType,
+        discountValue: coupon.discountValue,
+        description:
+          coupon.description ||
+          `${coupon.discountValue}${
+            coupon.discountType === "percentage" ? "%" : " LKR"
+          } off`,
       });
       setPromoCode("");
+      console.log("Applied coupon:", coupon);
+    } else {
+      setPopUp({
+        state: true,
+        message: "Invalid promo code. Please check and try again.",
+        status: "error",
+      });
     }
   };
 
@@ -145,6 +232,7 @@ export const Cart = () => {
     (sum, item) => sum + item.price * item.quantity,
     0
   );
+
   const savings = cartItems.reduce((sum, item) => {
     if (item.onSale) {
       return sum + (item.originalPrice - item.price) * item.quantity;
@@ -152,26 +240,44 @@ export const Cart = () => {
     return sum;
   }, 0);
 
+  // Calculate promo discount
   const promoDiscount = appliedPromo
-    ? appliedPromo.type === "percentage"
-      ? subtotal * appliedPromo.discount
-      : appliedPromo.type === "fixed"
-      ? appliedPromo.discount
+    ? appliedPromo.discountType === "percentage"
+      ? subtotal * (appliedPromo.discountValue / 100)
+      : appliedPromo.discountType === "fixed"
+      ? appliedPromo.discountValue
       : 0
     : 0;
 
-  const shippingFee =
-    appliedPromo?.type === "shipping"
+  // Calculate shipping fee based on real data
+  const calculatedShipping =
+    appliedPromo?.discountType === "free_shipping"
       ? 0
-      : subtotal > 5000
+      : subtotal >= freeShippingOver
       ? 0
-      : subtotal > 2000
-      ? 25
-      : 45;
+      : shippingFee;
 
-  const tax = (subtotal - promoDiscount) * 0.08; // 8% tax
-  const total = subtotal - promoDiscount + shippingFee + tax;
+  // Calculate total
+  const total = subtotal - promoDiscount + calculatedShipping;
 
+  useEffect(() => {
+    if (total < 0 || total === 0) {
+      console.log("Minus");
+      setPopUp({
+        state: true,
+        status: "error",
+        message: "You cannot use this coupon on this product.",
+      });
+      setPromoCode(null);
+      setAppliedPromo(null);
+    } else {
+      setPopUp({
+        state: false,
+        status: null,
+        message: "",
+      });
+    }
+  }, [total, appliedPromo]);
   if (isLoading) {
     return (
       <div className="loading-container">
@@ -188,14 +294,22 @@ export const Cart = () => {
     if (step === "checkout") {
       return (
         <CheckoutForm
+          cartItems={cartItems}
+          total={total}
+          subtotal={subtotal}
+          promoDiscount={promoDiscount}
+          appliedPromo={appliedPromo}
+          shippingFee={calculatedShipping}
+          freeShippingOver={freeShippingOver}
           onOrderPlaced={() => setStep("confirmation")}
+          setConfirmationData={setConfirmationData}
           onBackToCart={() => setStep("cart")}
         />
       );
     }
 
     if (step === "confirmation") {
-      return <OrderConfirmation />;
+      return <OrderConfirmation confirmationData={confirmationData} />;
     }
 
     // Default to 'cart' step
@@ -209,10 +323,25 @@ export const Cart = () => {
               <br />
               and find something perfect for you.
             </p>
-            <button className="shop-now-btn">EXPLORE COLLECTION</button>
+            <button className="shop-now-btn" onClick={() => navigate("/shop")}>
+              EXPLORE COLLECTION
+            </button>
           </div>
         ) : (
           <>
+            <ConfirmationDialog
+              isOpen={showConfirm}
+              title="Remove item?"
+              message="Are you sure you want to remove this item from your cart?"
+              confirmText="Remove"
+              cancelText="Cancel"
+              variant="destructive"
+              onConfirm={removeItem}
+              onCancel={() => setShowConfirm(false)}
+            />
+            {popUp.state && (
+              <PopMessage status={popUp.status} message={popUp.message} />
+            )}
             <div className="cart-items">
               {cartItems.map((item, index) => (
                 <div
@@ -228,21 +357,23 @@ export const Cart = () => {
                       src={item.image}
                       alt={item.name}
                       className="item-image"
+                      onError={(e) => {
+                        e.target.src = "/api/placeholder/120/120";
+                      }}
                     />
                     <div className="item-details">
                       <h3 className="item-name">{item.name}</h3>
-                      <p className="item-subtitle">{item.subtitle}</p>
-                      <p className="item-collection">{item.collection}</p>
                       <div className="item-specs">
-                        <div className="spec">
-                          <span className="spec-label">Color:</span>
-                          {item.color}
-                        </div>
-                        <div className="spec">
-                          <span className="spec-label">Size:</span>
-                          {item.size}
-                        </div>
+                        {Object.entries(item.attributes || {}).map(
+                          ([key, value]) => (
+                            <div className="spec" key={key}>
+                              <span className="spec-label">{key}:</span>
+                              {value}
+                            </div>
+                          )
+                        )}
                       </div>
+
                       <div className="item-meta">
                         <div className="sku">SKU: {item.sku}</div>
                         <div className="delivery-info">
@@ -253,11 +384,11 @@ export const Cart = () => {
                     <div className="item-actions">
                       <div className="price-section">
                         <span className="current-price">
-                          ${item.price.toLocaleString()}
+                          LKR {item.price.toLocaleString()}
                         </span>
                         {item.onSale && (
                           <span className="original-price">
-                            ${item.originalPrice.toLocaleString()}
+                            LKR {item.originalPrice.toLocaleString()}
                           </span>
                         )}
                       </div>
@@ -292,7 +423,7 @@ export const Cart = () => {
                       </div>
                       <button
                         className="remove-btn"
-                        onClick={() => removeItem(item.id)}
+                        onClick={() => askRemoveItem(item.id)}
                       >
                         Remove
                       </button>
@@ -315,6 +446,7 @@ export const Cart = () => {
                       onChange={(e) =>
                         setPromoCode(e.target.value.toUpperCase())
                       }
+                      onKeyPress={(e) => e.key === "Enter" && applyPromoCode()}
                     />
                     <button className="promo-apply" onClick={applyPromoCode}>
                       APPLY
@@ -334,6 +466,7 @@ export const Cart = () => {
                   </div>
                 )}
               </div>
+
               <div className="price-breakdown">
                 <div className="price-line subtotal">
                   <span>
@@ -341,50 +474,59 @@ export const Cart = () => {
                     {cartItems.reduce((sum, item) => sum + item.quantity, 0)}{" "}
                     items)
                   </span>
-                  <span>${subtotal.toLocaleString()}</span>
+                  <span>LKR {subtotal.toLocaleString()}</span>
                 </div>
+
                 {savings > 0 && (
                   <div className="price-line">
                     <span>Sale Savings</span>
                     <span className="savings">
-                      -${savings.toLocaleString()}
+                      -LKR {savings.toLocaleString()}
                     </span>
                   </div>
                 )}
+
                 {appliedPromo && promoDiscount > 0 && (
                   <div className="price-line">
                     <span>Promo Discount ({appliedPromo.code})</span>
                     <span className="discount">
-                      -${promoDiscount.toLocaleString()}
+                      -LKR {promoDiscount.toLocaleString()}
                     </span>
                   </div>
                 )}
+
                 <div className="price-line">
                   <span>Shipping</span>
-                  <span>{shippingFee === 0 ? "FREE" : `$${shippingFee}`}</span>
+                  <span>
+                    {calculatedShipping === 0
+                      ? "FREE"
+                      : `LKR ${calculatedShipping.toLocaleString()}`}
+                  </span>
                 </div>
-                <div className="price-line">
-                  <span>Tax</span>
-                  <span>${tax.toFixed(2)}</span>
-                </div>
+
                 <div className="price-line total">
                   <span>Total</span>
-                  <span>${total.toFixed(2)}</span>
+                  <span>LKR {total.toLocaleString()}</span>
                 </div>
               </div>
+
               <div className="shipping-info">
-                <strong>FREE SHIPPING</strong> on orders over $5,000
+                <strong>FREE SHIPPING</strong> on orders over LKR{" "}
+                {freeShippingOver?.toLocaleString() || "5,000"}
                 <br />
                 <strong>EXPRESS SHIPPING</strong> available at checkout
                 <br />
-                All orders are carefully packaged with our signature gift wrap
+                All orders are carefully packaged with our packaging team
               </div>
+
               <button
                 className="checkout-btn"
                 onClick={() => setStep("checkout")}
+                disabled={cartItems.length === 0}
               >
                 SECURE CHECKOUT
               </button>
+
               <div className="security-badges">
                 <div className="security-badge">🔒 SSL SECURE</div>
                 <div className="security-badge">✓ MONEY BACK</div>
@@ -399,12 +541,8 @@ export const Cart = () => {
 
   return (
     <>
-      <style jsx>{`
-        /* Your existing CSS here */
-      `}</style>
-
       <div className="cart-container">
-        {step == "cart" ? (
+        {step === "cart" ? (
           <div className="cart-header">
             <div className="header-content">
               <div>
@@ -420,7 +558,7 @@ export const Cart = () => {
               </div>
               <button
                 className="continue-shopping"
-                onClick={() => setStep("cart")}
+                onClick={() => navigate("/shop")}
               >
                 CONTINUE SHOPPING
               </button>

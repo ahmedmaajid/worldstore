@@ -172,9 +172,9 @@ section {
 }
 
 .new-arrival-product-info span {
-  font-size: 0.9rem; /* subtle price */
-  font-weight: 400;
-  color: #888;
+  font-size: 1rem; /* subtle price */
+  font-weight: 500;
+  color: #333;
 }
 
 .btn.btn-discover {

@@ -3,7 +3,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 1rem 2rem;
-  font-family: "Jost", Questrial, Raleway;
+  font-family: "Jost", Questrial, Raleway !important;
   background-color: #fff;
   border-bottom: 1px solid #eee;
   position: sticky;
@@ -11,6 +11,44 @@
   z-index: 100;
 }
 
+.sidebar-nav a span {
+  font-family: "Jost", Questrial, Raleway !important;
+}
+
+.sidebar-nav a,
+.sidebar-nav span {
+  font-family: "Jost", Questrial, Raleway !important;
+}
+.sidebar-nav .category-item a {
+  margin-bottom: unset;
+}
+
+.category-with-dropdown {
+  position: relative;
+}
+
+.category-main-link {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+}
+.category-main-link:hover + .category-dropdown {
+  display: block;
+}
+.category-dropdown:hover {
+  display: block;
+}
+
+.category-dropdown {
+  position: absolute;
+  transform: translateY(-50%);
+  padding: 10px 1rem;
+  top: 50%;
+  right: 0;
+  display: none;
+}
 /* Left side */
 .navbar-left {
   display: flex;
@@ -215,6 +253,10 @@
 .product-card {
   text-align: center;
   font-family: Inter;
+}
+.search-results .product-card img {
+  height: 200px;
+  object-fit: contain;
 }
 
 .product-card img {

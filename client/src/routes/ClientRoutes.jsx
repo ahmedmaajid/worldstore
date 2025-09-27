@@ -4,7 +4,7 @@ import Shop from "../pages/client/Shop";
 import Product from "../pages/client/Product";
 import ProductPreview from "../pages/client/ProductPreview";
 import { Cart } from "../pages/client/Cart";
-import { Wishlist } from "../pages/client/Wishlist";
+import Wishlist from "../pages/client/Wishlist";
 import Login from "../pages/client/Account";
 import SignUp from "../pages/client/SignUp";
 import Preview from "../pages/client/Preview";
@@ -12,6 +12,7 @@ import MyOrders from "../pages/client/MyOrders";
 
 import Nav from "../components/client/Navbar";
 import Sidebar from "../components/client/Sidebar";
+import MobileFooterNav from "../components/client/MobileFooterNav";
 export default function ClientRoutes({
   openSidebar,
   sidebarOpen,
@@ -24,20 +25,15 @@ export default function ClientRoutes({
 
       <Routes>
         <Route path="/" element={<Home openSidebar={openSidebar} />} />
-        <Route path="/product/:id" element={<Product />} />
         <Route path="/shop" element={<Shop />} />
-        <Route path="/shop/category/:category" element={<Shop />} />
-        <Route
-          path="/shop/category/:category/:subcategory"
-          element={<Shop />}
-        />
+        <Route path="/shop/category/*" element={<Shop />} />
         <Route path="/cart" element={<Cart />} />
         <Route path="/wishlist" element={<Wishlist />} />
         <Route path="/account/login" element={<Login />} />
         <Route path="/account/signup" element={<SignUp />} />
-        <Route path="/preview/:slug" element={<Preview />} />
+        <Route path="/product/:slug" element={<Preview />} />
         <Route path="/my-orders" element={<MyOrders />} />
-        <Route
+        {/* <Route
           path="/product/"
           element={
             <ProductPreview
@@ -65,8 +61,9 @@ export default function ClientRoutes({
               }}
             />
           }
-        />
+        /> */}
       </Routes>
+      <MobileFooterNav />
     </>
   );
 }

@@ -528,9 +528,15 @@
   .products-list {
     padding: 0 20px 24px;
   }
+  .luxury-modal-header .luxury-modal-title {
+    font-size: 16px;
+  }
 }
 
 @media (max-width: 480px) {
+  .luxury-modal-header .luxury-modal-title {
+    font-size: 14px;
+  }
   .page-title {
     font-size: 24px;
   }
@@ -696,4 +702,367 @@
 }
 .delete-btn:hover {
   background: #ddd;
+}
+
+.admin-product-price {
+  font-family: Jost;
+  font-size: 1.1rem;
+  margin-top: 1rem;
+  display: flex;
+  flex-direction: row-reverse;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.price-regular {
+  color: #a0a0a0; /* Soft gray for regular price */
+  font-weight: 400;
+  transition: color 0.3s ease;
+}
+
+.price-strikethrough {
+  text-decoration: line-through;
+  font-size: 0.9rem;
+}
+
+.price-final {
+  color: #1a1a1a; /* Dark gray for the final price */
+  font-weight: 600;
+  font-size: 1.2rem;
+}
+
+.price-na {
+  color: #c0c0c0; /* Very light gray for "not available" */
+  font-style: italic;
+  font-size: 0.9rem;
+}
+
+@media (max-width: 890px) {
+  .luxury-products-grid {
+    padding: 2.5rem 10px;
+  }
+  .luxury-products-grid {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)) !important;
+    gap: 10px;
+  }
+  .luxury-products-grid .luxury-product-name {
+    font-size: 14px;
+  }
+
+  .luxury-products-grid .luxury-product-description {
+    font-size: 13px;
+  }
+  .luxury-page-header {
+    padding: 3rem 2rem 10px !important;
+  }
+  .luxury-page-header .luxury-header-content h1 {
+    font-size: 24px;
+  }
+  .luxury-page-header .luxury-header-content p {
+    font-size: 14.5px;
+  }
+}
+
+@media (max-width: 424px) {
+  .luxury-content-card .luxury-card-header {
+    padding-bottom: 10px;
+  }
+  .luxury-content-card .luxury-card-header h2 {
+    font-size: 18px;
+  }
+
+  .luxury-card-header .luxury-create-btn {
+    padding: 8px 16px;
+    font-size: 12px;
+  }
+}
+
+/* Modal Backdrop */
+.luxury-modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+/* Modal Container */
+.luxury-modal-container {
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  width: 90%;
+  max-width: 900px;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+}
+
+/* Header */
+.luxury-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.luxury-modal-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #333333;
+}
+
+.luxury-modal-close-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: #888888;
+  transition: color 0.2s ease-in-out;
+}
+.luxury-modal-close-btn:hover {
+  color: #333333;
+}
+
+.luxury-modal-divider {
+  border: none;
+  border-top: 1px solid #f0f0f0;
+  margin: 0;
+}
+/* --- Modal and Backdrop --- */
+.luxury-modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(
+    255,
+    255,
+    255,
+    0.8
+  ); /* Lighter, more luxurious backdrop */
+  backdrop-filter: blur(10px); /* Add a frosted glass effect */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.luxury-modal-container {
+  background-color: #ffffff;
+  border-radius: 12px; /* A slightly softer border-radius */
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1); /* Deeper, more elegant shadow */
+  width: 90%;
+  max-width: 1000px; /* Wider modal for better horizontal layout */
+  max-height: 85vh; /* Slightly taller */
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; /* A classic, clean font */
+  animation: slideInFromTop 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideInFromTop {
+  from {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* --- Header --- */
+.luxury-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem 2rem;
+  border-bottom: 1px solid #e5e5e5; /* A very light, subtle divider */
+}
+
+.luxury-modal-title {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 1.5rem;
+  font-weight: 500;
+  color: #1a1a1a;
+  letter-spacing: -0.02em; /* Tighter letter spacing for a modern look */
+}
+
+.luxury-modal-close-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #888888;
+  padding: 0.5rem;
+  transition: color 0.2s ease;
+}
+.luxury-modal-close-btn:hover {
+  color: #333333;
+}
+
+/* --- Content: Variations Grid --- */
+.luxury-variations-grid-container {
+  padding: 2rem;
+  overflow-y: auto;
+  display: flex;
+  gap: 1rem; /* Increased gap for more breathing room */
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  scrollbar-width: none; /* Hide scrollbar for a cleaner look */
+  -ms-overflow-style: none; /* IE and Edge */
+}
+
+.luxury-variations-grid-container::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, and Opera */
+}
+
+.luxury-variation-card {
+  flex: 0 0 280px;
+  display: flex;
+  flex-direction: column;
+  background-color: #fcfcfc;
+  border: 1px solid #f0f0f0;
+  border-radius: 8px;
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.luxury-variation-image {
+  width: 100%;
+  height: 250px; /* Taller image to match the wider card */
+  overflow: hidden;
+}
+
+.luxury-variation-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  transition: transform 0.3s ease;
+}
+
+.luxury-variation-card:hover .luxury-variation-image img {
+  transform: scale(1.05);
+}
+
+.luxury-variation-details {
+  padding: 1.5rem;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* --- Details & Attributes --- */
+.luxury-attributes-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem; /* More space between attribute lines */
+  margin-bottom: 1rem;
+}
+
+.luxury-attribute-item {
+  display: flex;
+  gap: 0.75rem; /* More space between label and value */
+  font-size: 0.95rem; /* Slightly larger font size */
+  color: #444444;
+  margin: 0;
+  text-transform: capitalize;
+}
+
+.info-label {
+  font-weight: 500;
+  color: #1a1a1a;
+  text-transform: capitalize;
+}
+
+.attribute-value {
+  font-weight: 400;
+  color: #555555;
+  text-transform: capitalize;
+}
+
+.luxury-variation-info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.luxury-info-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: #555555;
+}
+
+.price-value {
+  font-weight: 600;
+  font-size: 1rem;
+  color: #000000;
+  letter-spacing: -0.02em;
+}
+
+/* --- Footer --- */
+.luxury-modal-footer {
+  padding: 1.5rem 2rem;
+  border-top: 1px solid #e5e5e5;
+  text-align: right;
+}
+
+.luxury-modal-btn {
+  padding: 0.75rem 2rem;
+  font-size: 1rem;
+  border-radius: 50px; /* A more rounded, pill-like button shape */
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.luxury-modal-close-btn-lg {
+  background-color: #1a1a1a;
+  color: #ffffff;
+  border: 1px solid #1a1a1a;
+}
+
+.luxury-modal-close-btn-lg:hover {
+  background-color: #333333;
+  border-color: #333333;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.delete-variation-button {
+  padding: 8px 16px;
+  border-radius: 6px;
+  background-color: rgb(207, 13, 45);
+  color: white;
 }

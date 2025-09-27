@@ -1,12 +1,28 @@
 import React, { useState, useEffect } from "react";
+import { resolvePath, useParams } from "react-router-dom";
+import { getProduct } from "../../api/products.js";
+import { Handbag, Heart } from "lucide-react";
+import PopMessage from "../../components/client/PopMessage";
+import { Spinner } from "../../components/client/Spinner";
+import axios from "../../api/axios";
+import { checkAuth } from "../../api/checkAuth.js";
+import { getCommerceData } from "../../api/admin.js";
+import { directOrder } from "../../api/order.js";
 
 export default function Preview() {
   const [product, setProduct] = useState(null);
-  const [selectedSize, setSelectedSize] = useState("");
-  const [selectedColor, setSelectedColor] = useState("");
+  const [selectedVariation, setSelectedVariation] = useState(null);
   const [quantity, setQuantity] = useState(1);
-  const [step, setStep] = useState(1); // 1: Product details, 2: Shipping info, 3: Confirmation
+  const [step, setStep] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
+
+  // New state for cart and wishlist functionality
+  const [isAddingToCart, setIsAddingToCart] = useState(false);
+  const [isAddingToWishlist, setIsAddingToWishlist] = useState(false);
+  const [showPopMessage, setShowPopMessage] = useState(null);
+
+  const [popUp, setPopUp] = useState({ message: "", state: false, status: "" });
+
   const [shippingInfo, setShippingInfo] = useState({
     firstName: "",
     lastName: "",
@@ -20,43 +36,160 @@ export default function Preview() {
   });
   const [errors, setErrors] = useState({});
 
-  // Simulate fetching product from URL slug
-  useEffect(() => {
-    const urlSlug = "monogram-canvas-handbag-noir"; // Fake slug
+  const { slug } = useParams();
 
-    // Simulate API call
-    setTimeout(() => {
-      setProduct({
-        id: "lv-001",
-        slug: urlSlug,
-        name: "MONOGRAM CANVAS HANDBAG",
-        subtitle: "NOIR COLLECTION",
-        price: 2850,
-        currency: "USD",
-        description:
-          "Crafted from iconic Monogram canvas with natural cowhide leather trim, this sophisticated handbag features gold-tone hardware and a spacious interior with premium silk lining.",
-        images: ["/Watch.png", "/Handbag.png", "/Toy.png"],
-        colors: [
-          { name: "Monogram Brown", code: "#8B4513" },
-          { name: "Noir Black", code: "#000000" },
-          { name: "Cream Ivory", code: "#F5F5DC" },
-        ],
-        sizes: ["ONE SIZE"],
-        features: [
-          "Monogram canvas with leather trim",
-          "Gold-tone hardware",
-          "Interior zip pocket",
-          "Premium silk lining",
-          "Adjustable shoulder strap",
-          "Handcrafted in France",
-        ],
-        inStock: true,
-        deliveryTime: "3-5 business days",
-      });
-      setSelectedColor("Monogram Brown");
-      setSelectedSize("ONE SIZE");
-    }, 500);
+  useEffect(() => {
+    async function fetchProduct() {
+      try {
+        setIsLoading(true);
+        const productData = await getProduct(slug);
+        setProduct(productData);
+
+        if (productData.hasVariations && productData.variations?.length > 0) {
+          setSelectedVariation(productData.variations[0]);
+        }
+      } catch (err) {
+        console.error("Error fetching product:", err);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    fetchProduct();
+  }, [slug]);
+
+  const [shippingFee, setShippingFee] = useState(0);
+
+  useEffect(() => {
+    async function getCommerce() {
+      try {
+        const commerce = await getCommerceData();
+        setShippingFee(commerce[0].shippingFee);
+      } catch (error) {
+        console.log(error);
+      }
+    }
+    getCommerce();
   }, []);
+
+  // Cart and Wishlist handlers
+  const handleAddToCart = async () => {
+    const checkingUser = await checkAuth();
+    if (checkingUser === false)
+      return setShowPopMessage({
+        status: "warning",
+        message: "Please log in or create an account to add items to your cart",
+      });
+
+    if (product.hasVariations && !selectedVariation) {
+      setShowPopMessage({
+        status: "warning",
+        message: "Please select a variation before adding to cart",
+      });
+      return;
+    }
+
+    if (
+      product.hasVariations &&
+      selectedVariation &&
+      !selectedVariation.inStock
+    ) {
+      setShowPopMessage({
+        status: "error",
+        message: "This variation is currently out of stock",
+      });
+      return;
+    }
+
+    setIsAddingToCart(true);
+
+    try {
+      const cartItem = {
+        productId: product._id,
+        productName: product.name,
+        productImage: getCurrentImage(),
+        variationId: selectedVariation?._id || null,
+        variationName: selectedVariation?.displayName || null,
+        price: getCurrentPrice(),
+        quantity: quantity,
+      };
+
+      const response = await axios.post("/api/products/add-to-cart", cartItem);
+
+      setShowPopMessage({
+        status: "success",
+        message: `${response.data.cartItem.productName}${
+          response.data.cartItem.variationName
+            ? ` (${response.data.cartItem.variationName})`
+            : ""
+        } has been added to your cart!`,
+      });
+    } catch (error) {
+      console.error("Error adding to cart:", error);
+      setShowPopMessage({
+        status: "error",
+        message: "Failed to add item to cart. Please try again.",
+      });
+    } finally {
+      setIsAddingToCart(false);
+    }
+  };
+
+  const handleAddToWishlist = async () => {
+    // Check if user is logged in
+    const isLoggedIn = await checkAuth();
+    if (!isLoggedIn) {
+      return setShowPopMessage({
+        status: "error",
+        message:
+          "Please log in or create an account to add items to your wishlist",
+      });
+    }
+
+    // Check variation selection
+    if (
+      product.hasVariations &&
+      product.variations?.length > 0 &&
+      !selectedVariation
+    ) {
+      return setShowPopMessage({
+        status: "warning",
+        message: "Please select a variation before adding to wishlist",
+      });
+    }
+
+    setIsAddingToWishlist(true);
+
+    try {
+      const wishlistData = {
+        productId: product._id,
+        variationId: selectedVariation?._id || null,
+      };
+
+      const response = await axios.post(
+        "/api/products/add-to-wishlist",
+        wishlistData
+      );
+
+      setShowPopMessage({
+        status: "success",
+        message: `${product.name}${
+          selectedVariation ? ` (${selectedVariation.displayName})` : ""
+        } has been added to your wishlist!`,
+      });
+    } catch (error) {
+      console.error("Error adding to wishlist:", error);
+      setShowPopMessage({
+        status: "error",
+        message: "Failed to add item to wishlist. Please try again.",
+      });
+    } finally {
+      setIsAddingToWishlist(false);
+    }
+  };
+
+  const closePopMessage = () => {
+    setShowPopMessage(null);
+  };
 
   const updateShippingInfo = (field, value) => {
     setShippingInfo((prev) => ({ ...prev, [field]: value }));
@@ -92,8 +225,8 @@ export default function Preview() {
   };
 
   const handleProceedToShipping = () => {
-    if (!selectedSize || !selectedColor) {
-      alert("Please select size and color");
+    if (product.hasVariations && !selectedVariation) {
+      alert("Please select a variation");
       return;
     }
     setIsLoading(true);
@@ -113,17 +246,100 @@ export default function Preview() {
     }
   };
 
-  const handlePlaceOrder = () => {
+  // const handlePlaceOrder = () => {
+  //   setIsLoading(true);
+  //   setTimeout(() => {
+  //     setIsLoading(false);
+  //     alert(
+  //       "Order placed successfully! We will contact you within 24 hours to confirm your order."
+  //     );
+  //   }, 1500);
+  // };
+  const handlePlaceOrder = async () => {
     setIsLoading(true);
-    setTimeout(() => {
+
+    try {
+      const orderData = {
+        productId: product._id,
+        productName: product.name,
+        productImage: getCurrentImage(),
+        variationId: selectedVariation?._id || null,
+        variationAttributes: selectedVariation?.attributes || {},
+        unitPrice: getCurrentPrice(),
+        quantity: quantity,
+        totalPrice: totalPrice,
+        deliveryFee: deliveryFee,
+        finalTotal: finalTotal,
+        shippingAddress: {
+          firstName: shippingInfo.firstName,
+          lastName: shippingInfo.lastName,
+          email: shippingInfo.email,
+          phone: shippingInfo.phone,
+          address: shippingInfo.address,
+          city: shippingInfo.city,
+          postalCode: shippingInfo.postalCode,
+          country: shippingInfo.country,
+          specialInstructions: shippingInfo.specialInstructions,
+        },
+      };
+
+      const response = await directOrder(orderData);
+      console.log("Response", response);
       setIsLoading(false);
-      alert(
-        "Order placed successfully! We will contact you within 24 hours to confirm your order."
-      );
-    }, 1500);
+      setPopUp({
+        state: true,
+        status: "success",
+        message: `Order placed successfully! Order Number: ${response.data.order.orderNumber}. We will confirm your order within 24 hours.`,
+      });
+    } catch (error) {
+      setIsLoading(false);
+      console.error("Error placing order:", error);
+      const errorMessage =
+        error.response?.data?.message ||
+        "Failed to place order. Please try again.";
+      setPopUp({
+        state: true,
+        status: "success",
+        message: errorMessage,
+      });
+    }
   };
 
-  if (!product) {
+  const getCurrentImage = () => {
+    if (selectedVariation && selectedVariation.image) {
+      return selectedVariation.image;
+    }
+    return product?.mainImages?.[0] || "/default-product.jpg";
+  };
+
+  const getCurrentPrice = () => {
+    if (product.hasVariations && selectedVariation) {
+      return selectedVariation.discountedPrice > 0
+        ? selectedVariation.discountedPrice
+        : selectedVariation.price;
+    }
+    return product.discountedPrice > 0
+      ? product.discountedPrice
+      : product.price;
+  };
+
+  const getOriginalPrice = () => {
+    if (product.hasVariations && selectedVariation) {
+      return selectedVariation.discountedPrice > 0
+        ? selectedVariation.price
+        : null;
+    }
+    return product.discountedPrice > 0 ? product.price : null;
+  };
+
+  const hasDiscount = () => {
+    if (product.hasVariations && selectedVariation) {
+      return selectedVariation.discountedPrice > 0;
+    }
+    return product.discountedPrice > 0;
+  };
+
+  if (isLoading && !product) {
     return (
       <div className="loading-container">
         <div className="spinner-large"></div>
@@ -132,9 +348,20 @@ export default function Preview() {
     );
   }
 
-  const totalPrice = product.price * quantity;
-  const deliveryFee = totalPrice > 2000 ? 0 : 25;
-  const finalTotal = totalPrice + deliveryFee;
+  if (!product) {
+    return (
+      <div className="loading-container">
+        <h3>Product not found</h3>
+        <p>The product you're looking for doesn't exist.</p>
+      </div>
+    );
+  }
+
+  const currentPrice = getCurrentPrice();
+  const originalPrice = getOriginalPrice();
+  const totalPrice = currentPrice * quantity;
+  const deliveryFee = shippingFee;
+  const finalTotal = totalPrice + shippingFee;
 
   return (
     <>
@@ -146,7 +373,6 @@ export default function Preview() {
           font-weight: 600;
         }
 
-
         .logo {
           font-size: 24px;
           font-weight: 300;
@@ -154,7 +380,6 @@ export default function Preview() {
           color: #000;
         }
 
-       
         .main-content {
           max-width: 1200px;
           margin: 0 auto;
@@ -214,6 +439,16 @@ export default function Preview() {
           margin-bottom: 20px;
         }
 
+        .spinner-small {
+          width: 16px;
+          height: 16px;
+          border: 2px solid #ccc;
+          border-top: 2px solid #666;
+          border-radius: 50%;
+          animation: spin 1s linear infinite;
+          margin-right: 6px;
+        }
+
         @keyframes spin {
           0% { transform: rotate(0deg); }
           100% { transform: rotate(360deg); }
@@ -236,7 +471,6 @@ export default function Preview() {
           aspect-ratio: 1;
           object-fit: cover;
           border: 1px solid #e5e5e5;
-          
         }
 
         .product-details {
@@ -245,23 +479,35 @@ export default function Preview() {
 
         .product-title {
           font-size: 32px;
-          font-weight: 300;
-          letter-spacing: 0.1em;
+          font-weight: 400;
           margin-bottom: 8px;
         }
 
         .product-subtitle {
           font-size: 14px;
           color: #666;
-          letter-spacing: 0.2em;
           margin-bottom: 24px;
         }
 
         .product-price {
           font-size: 24px;
-          font-weight: 300;
+          font-weight: 400;
           margin-bottom: 32px;
-          letter-spacing: 0.05em;
+          display: flex;
+          align-items: center;
+          gap: 12px;
+        }
+
+        .price-discounted {
+          color: #333;
+          font-family: Inter;
+        }
+
+        .price-original {
+          font-family: Inter;
+          text-decoration: line-through;
+          color: #999;
+          font-size: 18px;
         }
 
         .product-description {
@@ -286,49 +532,49 @@ export default function Preview() {
           display: block;
         }
 
-        .color-options {
-          display: flex;
+        .variation-options {
+          display: grid;
           gap: 12px;
         }
 
-        .color-option {
-          width: 40px;
-          height: 40px;
-          border-radius: 50%;
-          border: 2px solid transparent;
-          cursor: pointer;
-          transition: border-color 0.3s;
-        }
-
-        .color-option.selected {
-          border-color: #000;
-        }
-
-        .size-options {
-          display: flex;
-          gap: 12px;
-        }
-
-        .size-option {
-          padding: 12px 20px;
+        .variation-option {
+          padding: 12px 16px;
           border: 1px solid #ccc;
           background: transparent;
           cursor: pointer;
           transition: all 0.3s;
-          font-size: 12px;
-          letter-spacing: 0.1em;
+          font-size: 14px;
+          letter-spacing: 0.05em;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
         }
 
-        .size-option.selected,
-        .size-option:hover {
+        .variation-option.selected,
+        .variation-option:hover {
           border-color: #000;
           background: #f9f9f9;
         }
 
+        .variation-info {
+          display: flex;
+          flex-direction: column;
+          align-items: flex-start;
+        }
+
+        .variation-name {
+          font-weight: 500;
+          margin-bottom: 2px;
+        }
+
+        .variation-price {
+          font-size: 12px;
+          color: #666;
+        }
+
         .quantity-selector {
           display: flex;
-          align-items: center;
-          gap: 16px;
+          align-items: stretch;
         }
 
         .quantity-btn {
@@ -349,10 +595,92 @@ export default function Preview() {
 
         .quantity-input {
           width: 60px;
+          height: 32px;
           text-align: center;
           border: 1px solid #ccc;
-          padding: 8px;
           font-size: 14px;
+        }
+
+        .product-preview-action-btns {
+          margin-bottom: 10px;
+          display: flex;
+          gap: 8px;
+        }
+
+        .product-preview-action-btns button {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 0.5rem;
+          padding: 8px 16px;
+          border: 1px solid #e8e8e8;
+          background: #ffffff;
+          color: #2c2c2c;
+          font-size: 0.875rem;
+          font-weight: 400;
+          letter-spacing: 0.02em;
+          border-radius: 6px;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+          min-height: 38px;
+        }
+
+        .product-preview-action-btns button:hover {
+          background: #fafafa;
+          border-color: #d0d0d0;
+          box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+          transform: translateY(-1px);
+        }
+
+        .product-preview-action-btns button:active {
+          transform: translateY(0);
+          box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+        }
+
+        .product-preview-action-btns button:focus {
+          outline: none;
+          border-color: #a0a0a0;
+          box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.05);
+        }
+
+        .product-preview-action-btns button:disabled {
+          opacity: 0.7;
+          cursor: not-allowed;
+          transform: none !important;
+        }
+
+        .product-preview-action-btns button:disabled:hover {
+          transform: none !important;
+          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04) !important;
+        }
+
+        .product-preview-action-btns button svg {
+          width: 16px;
+          height: 16px;
+          stroke-width: 1.5;
+          opacity: 0.8;
+        }
+
+        .product-preview-action-btns button:hover svg {
+          opacity: 1;
+        }
+
+        @media (max-width: 480px) {
+          .product-preview-action-btns {
+            gap: 6px;
+          }
+          
+          .product-preview-action-btns button {
+            padding: 6px 12px;
+            font-size: 0.8rem;
+            min-height: 34px;
+          }
+          
+          .product-preview-action-btns button svg {
+            width: 14px;
+            height: 14px;
+          }
         }
 
         .form-section {
@@ -518,7 +846,6 @@ export default function Preview() {
           font-weight: 500;
         }
 
-
         .confirmation-section {
           text-align: center;
           max-width: 600px;
@@ -569,15 +896,19 @@ export default function Preview() {
         }
 
         @media(max-width: 424px){
-        .progress-step{
-        font-size: 10px;
-        }
+          .progress-step{
+            font-size: 10px;
+          }
         }
       `}</style>
 
+      {isLoading && <Spinner />}
+
+      {popUp.state && (
+        <PopMessage message={popUp.message} status={popUp.status} />
+      )}
       <div className="purchase-container">
         <div className="main-content">
-          {/* Progress Steps */}
           <div className="progress-steps">
             <div className={`progress-step ${step >= 1 ? "active" : ""}`}>
               PRODUCT DETAILS
@@ -590,12 +921,11 @@ export default function Preview() {
             </div>
           </div>
 
-          {/* Step 1: Product Details */}
           {step === 1 && (
             <div className="product-section">
               <div className="product-images">
                 <img
-                  src={product.images[0]}
+                  src={getCurrentImage()}
                   alt={product.name}
                   className="main-image"
                 />
@@ -603,47 +933,83 @@ export default function Preview() {
 
               <div className="product-details">
                 <h1 className="product-title">{product.name}</h1>
-                <p className="product-subtitle">{product.subtitle}</p>
+                <p className="product-subtitle">Premium Quality Product</p>
+
                 <div className="product-price">
-                  ${product.price.toLocaleString()}
+                  {hasDiscount() ? (
+                    <>
+                      <span className="price-discounted">
+                        Rs. {currentPrice.toLocaleString()}
+                      </span>
+                      <span className="price-original">
+                        Rs. {originalPrice.toLocaleString()}
+                      </span>
+                    </>
+                  ) : (
+                    <span>Rs. {currentPrice.toLocaleString()}</span>
+                  )}
                 </div>
 
-                <p className="product-description">{product.description}</p>
+                <p className="product-description">
+                  {product.description ||
+                    "Premium quality product with excellent features."}
+                </p>
 
                 <div className="product-options">
-                  <div className="option-group">
-                    <label className="option-label">COLOR</label>
-                    <div className="color-options">
-                      {product.colors.map((color) => (
-                        <div
-                          key={color.name}
-                          className={`color-option ${
-                            selectedColor === color.name ? "selected" : ""
-                          }`}
-                          style={{ backgroundColor: color.code }}
-                          onClick={() => setSelectedColor(color.name)}
-                          title={color.name}
-                        />
-                      ))}
+                  {product.hasVariations && product.variations?.length > 0 && (
+                    <div className="option-group">
+                      <label className="option-label">SELECT VARIATION</label>
+                      <div className="variation-options">
+                        {product.variations.map((variation) => (
+                          <button
+                            key={variation._id}
+                            className={`variation-option ${
+                              selectedVariation?._id === variation._id
+                                ? "selected"
+                                : ""
+                            }`}
+                            onClick={() => setSelectedVariation(variation)}
+                          >
+                            <div className="variation-info">
+                              <div className="variation-name">
+                                {variation.displayName}
+                              </div>
+                              <div className="variation-price">
+                                {variation.discountedPrice > 0 ? (
+                                  <>
+                                    <span style={{ color: "#e74c3c" }}>
+                                      Rs.{" "}
+                                      {variation.discountedPrice.toLocaleString()}
+                                    </span>
+                                    <span
+                                      style={{
+                                        textDecoration: "line-through",
+                                        marginLeft: "8px",
+                                        color: "#999",
+                                      }}
+                                    >
+                                      Rs. {variation.price.toLocaleString()}
+                                    </span>
+                                  </>
+                                ) : (
+                                  <span>
+                                    Rs. {variation.price.toLocaleString()}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                            {!variation.inStock && (
+                              <span
+                                style={{ color: "#e74c3c", fontSize: "12px" }}
+                              >
+                                Out of Stock
+                              </span>
+                            )}
+                          </button>
+                        ))}
+                      </div>
                     </div>
-                  </div>
-
-                  <div className="option-group">
-                    <label className="option-label">SIZE</label>
-                    <div className="size-options">
-                      {product.sizes.map((size) => (
-                        <button
-                          key={size}
-                          className={`size-option ${
-                            selectedSize === size ? "selected" : ""
-                          }`}
-                          onClick={() => setSelectedSize(size)}
-                        >
-                          {size}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
+                  )}
 
                   <div className="option-group">
                     <label className="option-label">QUANTITY</label>
@@ -674,6 +1040,41 @@ export default function Preview() {
                   </div>
                 </div>
 
+                <div className="product-preview-action-btns">
+                  <button
+                    className="btn btn-secondary"
+                    onClick={handleAddToCart}
+                    disabled={isAddingToCart || isAddingToWishlist}
+                  >
+                    {isAddingToCart ? (
+                      <>
+                        <div className="spinner-small"></div>
+                        Adding...
+                      </>
+                    ) : (
+                      <>
+                        Add to Cart <Handbag />
+                      </>
+                    )}
+                  </button>
+                  <button
+                    className="btn btn-secondary"
+                    onClick={handleAddToWishlist}
+                    disabled={isAddingToCart || isAddingToWishlist}
+                  >
+                    {isAddingToWishlist ? (
+                      <>
+                        <div className="spinner-small"></div>
+                        Adding...
+                      </>
+                    ) : (
+                      <>
+                        Add to Wishlist <Heart />
+                      </>
+                    )}
+                  </button>
+                </div>
+
                 <button
                   className="btn btn-primary"
                   onClick={handleProceedToShipping}
@@ -692,7 +1093,6 @@ export default function Preview() {
             </div>
           )}
 
-          {/* Step 2: Shipping Information */}
           {step === 2 && (
             <div className="form-section">
               <h2 className="form-title">SHIPPING INFORMATION</h2>
@@ -880,15 +1280,17 @@ export default function Preview() {
                   <span>
                     {product.name} × {quantity}
                   </span>
-                  <span>${totalPrice.toLocaleString()}</span>
+                  <span>Rs. {totalPrice.toLocaleString()}</span>
                 </div>
                 <div className="summary-item">
                   <span>Delivery</span>
-                  <span>{deliveryFee === 0 ? "FREE" : `$${deliveryFee}`}</span>
+                  <span>
+                    {deliveryFee === 0 ? "FREE" : `Rs. ${deliveryFee}`}
+                  </span>
                 </div>
                 <div className="summary-item summary-total">
                   <span>TOTAL</span>
-                  <span>${finalTotal.toLocaleString()}</span>
+                  <span>Rs. {finalTotal.toLocaleString()}</span>
                 </div>
               </div>
 
@@ -913,7 +1315,6 @@ export default function Preview() {
             </div>
           )}
 
-          {/* Step 3: Order Confirmation */}
           {step === 3 && (
             <div className="confirmation-section">
               <div className="confirmation-icon">✓</div>
@@ -927,29 +1328,29 @@ export default function Preview() {
                   </span>
                   <span></span>
                 </div>
-                <div className="summary-item">
-                  <span>Color: {selectedColor}</span>
-                  <span></span>
-                </div>
-                <div className="summary-item">
-                  <span>Size: {selectedSize}</span>
-                  <span></span>
-                </div>
+                {selectedVariation && (
+                  <div className="summary-item">
+                    <span>Variation: {selectedVariation.displayName}</span>
+                    <span></span>
+                  </div>
+                )}
                 <div className="summary-item">
                   <span>Quantity: {quantity}</span>
                   <span></span>
                 </div>
                 <div className="summary-item">
                   <span>Subtotal</span>
-                  <span>${totalPrice.toLocaleString()}</span>
+                  <span>Rs. {totalPrice.toLocaleString()}</span>
                 </div>
                 <div className="summary-item">
                   <span>Delivery</span>
-                  <span>{deliveryFee === 0 ? "FREE" : `$${deliveryFee}`}</span>
+                  <span>
+                    {deliveryFee === 0 ? "FREE" : `Rs. ${deliveryFee}`}
+                  </span>
                 </div>
                 <div className="summary-item summary-total">
                   <span>TOTAL</span>
-                  <span>${finalTotal.toLocaleString()}</span>
+                  <span>Rs. {finalTotal.toLocaleString()}</span>
                 </div>
               </div>
 
@@ -972,10 +1373,10 @@ export default function Preview() {
               <div className="cod-notice">
                 <strong>CASH ON DELIVERY</strong>
                 <br />
-                You will pay ${finalTotal.toLocaleString()} when you receive
+                You will pay Rs. {finalTotal.toLocaleString()} when you receive
                 your order.
                 <br />
-                Expected delivery: {product.deliveryTime}
+                Expected delivery: 3-5 business days
               </div>
 
               <button
@@ -1000,6 +1401,16 @@ export default function Preview() {
           )}
         </div>
       </div>
+
+      {showPopMessage && (
+        <PopMessage
+          status={showPopMessage.status}
+          message={showPopMessage.message}
+          onClose={closePopMessage}
+          autoClose={true}
+          duration={4000}
+        />
+      )}
     </>
   );
 }

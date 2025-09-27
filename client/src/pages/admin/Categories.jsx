@@ -634,7 +634,9 @@ export default function AdminCategories() {
               ) : (
                 <div style={{ width: "24px" }}></div>
               )}
-              <img style={styles.categoryImage} src={category.image} alt="" />
+              {category.image && (
+                <img style={styles.categoryImage} src={category.image} alt="" />
+              )}
 
               <div style={styles.categoryInfo}>
                 <span

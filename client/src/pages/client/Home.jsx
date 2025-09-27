@@ -8,7 +8,6 @@ import { MiddleBanner } from "../../components/client/MiddleBanner";
 import { StarsIcon } from "lucide-react";
 import FAQ from "../../components/client/FAQ";
 import Footer from "../../components/client/Footer";
-import MobileFooterNav from "../../components/client/MobileFooterNav";
 export default function Home({ openSidebar }) {
   return (
     <main>
@@ -42,7 +41,6 @@ export default function Home({ openSidebar }) {
       <MiddleBanner />
       <FAQ />
       <Footer />
-      <MobileFooterNav />
     </main>
   );
 }

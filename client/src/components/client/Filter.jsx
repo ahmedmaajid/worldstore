@@ -190,6 +190,16 @@ const Filter = ({ isOpen, toggle, filters, setFilters, categoriesData }) => {
     }));
   };
 
+  // const handleSubcategoryChange = (e) => {
+  //   const { value, checked } = e.target;
+  //   setFilters((prev) => ({
+  //     ...prev,
+  //     categories: checked
+  //       ? [...prev.categories, value]
+  //       : prev.categories.filter((cat) => cat !== value),
+  //   }));
+  // };
+
   const handleSubcategoryChange = (e) => {
     const { value, checked } = e.target;
     setFilters((prev) => ({
@@ -208,12 +218,19 @@ const Filter = ({ isOpen, toggle, filters, setFilters, categoriesData }) => {
     if (!hasChildren) {
       return (
         <label key={category.id} className="category-label">
-          <input
+          {/* <input
             type="checkbox"
             value={category.name}
             checked={filters.categories.includes(category.name)}
             onChange={handleSubcategoryChange}
+          /> */}
+          <input
+            type="checkbox"
+            value={category.id} // or category._id (check your DB schema)
+            checked={filters.categories.includes(category.id)}
+            onChange={handleSubcategoryChange}
           />
+
           {category.name}
         </label>
       );

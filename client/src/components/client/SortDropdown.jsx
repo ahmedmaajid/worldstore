@@ -7,8 +7,8 @@ export default function SortDropdown({ sortOption, setSortOption }) {
     { value: "price-high-to-low", label: "Price: High to Low" },
     { value: "name-a-z", label: "Alphabetically: A-Z" },
     { value: "name-z-a", label: "Alphabetically: Z-A" },
-    { value: "old-new", label: "Date, Old to new" },
-    { value: "new-old", label: "Date, New to old" },
+    { value: "old-new", label: "Item, Old to new" },
+    { value: "new-old", label: "Item, New to old" },
   ];
 
   const handleSelect = (option) => {

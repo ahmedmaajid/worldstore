@@ -174,6 +174,7 @@
 .spec {
   font-size: 12px;
   color: #666;
+  text-transform: capitalize;
 }
 
 .spec-label {
@@ -530,7 +531,7 @@
 
 /* Mobile Responsive */
 @media (max-width: 1024px) {
-  .main-content {
+  .main-content.cart {
     grid-template-columns: 1fr;
     gap: 40px;
     padding: 32px 20px;
@@ -554,15 +555,32 @@
     font-size: 24px;
   }
 
-  .main-content {
+  .main-content.cart {
     padding: 24px 16px;
     gap: 32px;
   }
 
   .cart-item {
     padding: 20px;
+    position: relative;
   }
 
+  .item-details {
+    align-items: start;
+  }
+  .item-meta {
+    margin-top: 0;
+    align-items: start;
+  }
+
+  .cart-item .item-actions .remove-btn {
+    position: absolute;
+    top: 0;
+    right: 0;
+    background-color: crimson;
+    padding: 8px 16px;
+    color: white;
+  }
   .item-content {
     grid-template-columns: 80px 1fr;
     gap: 16px;
@@ -591,6 +609,16 @@
 }
 
 @media (max-width: 480px) {
+  .main-content.cart .cart-summary {
+    background-color: unset;
+    border: unset;
+    box-shadow: unset;
+    padding: 0;
+  }
+
+  .cart-summary .price-breakdown span {
+    font-size: 14px;
+  }
   .item-content {
     grid-template-columns: 1fr;
     text-align: center;
@@ -753,6 +781,9 @@
     height: auto;
   }
 
+  .checkout-form {
+    padding: 40px 20px;
+  }
   .checkout-summary {
     border-left: none;
     border-top: 1px solid #eee;
@@ -912,10 +943,12 @@
   font-weight: 400;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  text-align: start;
 }
 
 .detail-value {
   color: #1a1a1a;
+  text-align: end;
   font-weight: 500;
 }
 
@@ -1143,7 +1176,6 @@
 @media (max-width: 768px) {
   .confirmation-container {
     padding: 60px 30px;
-    margin: 20px;
   }
 
   .confirmation-title {
@@ -1190,9 +1222,22 @@
   .confirmation-title {
     font-size: 20px;
   }
-}
+  .checkout-form,
+  .checkout-summary {
+    padding: 40px 0px;
+  }
 
-/* Subtle page entrance animation */
+  .checkout-form .form-row {
+    flex-wrap: wrap;
+  }
+
+  .detail-row .detail-label {
+    font-size: 12px;
+  }
+  .detail-row .detail-value {
+    font-size: 13px;
+  }
+}
 
 .checkmark-circle-svg {
   transform: scale(0);
@@ -1209,6 +1254,21 @@
   stroke-dasharray: 50;
   stroke-dashoffset: 50;
   animation: drawCheck 0.5s ease-out 1.8s forwards;
+}
+
+@media (max-width: 424px) {
+  .detail-row {
+    background-color: whitesmoke;
+    padding: 8px 16px;
+    flex-direction: column;
+    align-items: start;
+    gap: 4px;
+  }
+
+  .detail-label,
+  .detail-value {
+    text-align: start;
+  }
 }
 
 @keyframes drawCircle {

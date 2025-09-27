@@ -1,16 +1,26 @@
 import React, { useEffect } from "react";
-// import "./orderConfirmation.css";
+import { useNavigate } from "react-router-dom";
 
-export default function OrderConfirmation() {
+export default function OrderConfirmation({ confirmationData }) {
+  console.log("Confirmation Data", confirmationData);
+  const navigate = useNavigate();
   useEffect(() => {
-    // Generate random order number
-    const orderNumber =
-      "#LUX-2025-" +
-      String(Math.floor(Math.random() * 9999) + 1).padStart(4, "0");
-    const orderEl = document.querySelector(".order-number");
-    if (orderEl) orderEl.textContent = orderNumber;
+    if (!confirmationData) {
+      return (
+        <div className="order-confirmation-page">
+          <div className="confirmation-container">
+            <p>Loading order confirmation...</p>
+          </div>
+        </div>
+      );
+    }
 
-    // Add current date + 3-5 days for delivery estimate
+    // Set order number
+    console.log(confirmationData);
+    const orderEl = document.querySelector(".order-number");
+    if (orderEl) orderEl.textContent = confirmationData.orderNumber;
+
+    // Estimated delivery (3-5 days)
     const today = new Date();
     const deliveryStart = new Date(today.getTime() + 3 * 24 * 60 * 60 * 1000);
     const deliveryEnd = new Date(today.getTime() + 5 * 24 * 60 * 60 * 1000);
@@ -18,14 +28,23 @@ export default function OrderConfirmation() {
     const formatDate = (date) =>
       date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
 
-    const deliveryText = `${formatDate(deliveryStart)} - ${formatDate(
-      deliveryEnd
-    )}`;
     const deliveryEl = document.querySelector(
-      ".detail-row:nth-child(3) .detail-value"
+      ".detail-row .detail-value.delivery"
     );
-    if (deliveryEl) deliveryEl.textContent = deliveryText;
-  }, []);
+    if (deliveryEl)
+      deliveryEl.textContent = `${formatDate(deliveryStart)} - ${formatDate(
+        deliveryEnd
+      )}`;
+
+    // Set delivery address
+    const addressEl = document.querySelector(
+      ".detail-row:nth-child(4) .detail-value"
+    );
+    if (addressEl) {
+      const addr = confirmationData.shippingAddress;
+      addressEl.textContent = `${addr.firstName} ${addr.lastName}, ${addr.address}, ${addr.phone}`;
+    }
+  }, [confirmationData]);
 
   const continueShopping = () => {
     document.body.style.opacity = "0";
@@ -37,8 +56,7 @@ export default function OrderConfirmation() {
   };
 
   const trackOrder = () => {
-    alert("Order tracking feature coming soon...");
-    // window.location.href = "/track-order";
+    navigate("/shop");
   };
 
   return (
@@ -71,18 +89,18 @@ export default function OrderConfirmation() {
           </svg>
         </div>
 
-        {/* Main Content */}
         <h1 className="confirmation-title">Order Confirmed</h1>
         <p className="confirmation-subtitle">
           Thank you for your purchase. Your order has been successfully placed.
         </p>
 
-        {/* Order Details */}
         <div className="order-details">
           <h3>Order Details</h3>
           <div className="detail-row">
             <span className="detail-label">Order Number</span>
-            <span className="detail-value order-number">#LUX-2025-0001</span>
+            <span className="detail-value order-number">
+              {confirmationData.orderNumber}
+            </span>
           </div>
           <div className="detail-row">
             <span className="detail-label">Payment Method</span>
@@ -90,15 +108,19 @@ export default function OrderConfirmation() {
           </div>
           <div className="detail-row">
             <span className="detail-label">Estimated Delivery</span>
-            <span className="detail-value">3-5 Business Days</span>
+            <span className="detail-value delivery">5-7 Business Days</span>
           </div>
           <div className="detail-row">
             <span className="detail-label">Delivery Address</span>
-            <span className="detail-value">Your provided address</span>
+            <span className="detail-value">
+              {confirmationData.shippingAddress.firstName}{" "}
+              {confirmationData.shippingAddress.lastName},{" "}
+              {confirmationData.shippingAddress.address},{" "}
+              {confirmationData.shippingAddress.phone}
+            </span>
           </div>
         </div>
 
-        {/* Next Steps */}
         <div className="next-steps">
           <h4>What Happens Next</h4>
           <div className="steps-list">
@@ -111,7 +133,7 @@ export default function OrderConfirmation() {
             <div className="step-item">
               <div className="step-number">2</div>
               <div className="step-text">
-                You'll receive a call to confirm delivery details
+                You'll receive a call/mail to confirm delivery details
               </div>
             </div>
             <div className="step-item">
@@ -129,7 +151,6 @@ export default function OrderConfirmation() {
           </div>
         </div>
 
-        {/* Action Buttons */}
         <div className="action-buttons">
           <button className="primary-btn" onClick={continueShopping}>
             Continue Shopping

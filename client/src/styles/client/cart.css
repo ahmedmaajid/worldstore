@@ -297,7 +297,10 @@
     font-size: 14px;
   }
 }
-@media (max-width: 888px) {
+@media (max-width: 900px) {
+  .checkout-form {
+    padding: 40px 20px;
+  }
   .cart-content {
     grid-template-columns: 1fr;
     gap: 32px;

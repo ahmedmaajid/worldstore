@@ -20,7 +20,7 @@ export default function MobileFooterNav() {
         <img src="./WhatsApp.png" alt="" />
         <span>Contact</span>
       </a> */}
-      <a href="/account" className="nav-item">
+      <a href="/account/login" className="nav-item">
         <User />
         <span>Account</span>
       </a>

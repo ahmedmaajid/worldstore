@@ -1,6 +1,6 @@
 import React from "react";
 
-export const Spinner = () => {
+export const Spinner = ({ message }) => {
   return (
     <div className="modern-loader-container">
       {/* Main spinner */}
@@ -9,7 +9,7 @@ export const Spinner = () => {
       </div>
 
       {/* Loading text */}
-      <div className="loading-text">Loading</div>
+      <div className="loading-text">{message}</div>
 
       <style jsx>{`
         body {

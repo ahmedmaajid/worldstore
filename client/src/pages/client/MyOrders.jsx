@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from "react";
+import { cancelOrder, fetchOrders } from "../../api/order";
+import { ConfirmationDialog } from "../../components/client/ConfirmationDialog";
 
 export default function MyOrders() {
   const [orders, setOrders] = useState([]);
@@ -6,121 +8,59 @@ export default function MyOrders() {
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [filterStatus, setFilterStatus] = useState("all");
 
-  // Simulate fetching orders
-  useEffect(() => {
-    setTimeout(() => {
-      setOrders([
-        {
-          id: "LX-2024-001",
-          date: "2024-09-05",
-          status: "delivered",
-          total: 2850,
-          currency: "USD",
-          items: [
-            {
-              id: 1,
-              name: "MONOGRAM CANVAS HANDBAG",
-              subtitle: "NOIR COLLECTION",
-              color: "Monogram Brown",
-              size: "ONE SIZE",
-              quantity: 1,
-              price: 2850,
-              image: "/Watch.png",
-            },
-          ],
-          shipping: {
-            method: "Express Delivery",
-            address: "123 Luxury Street, Colombo 03, Sri Lanka",
-            trackingNumber: "LX789123456",
-          },
-          payment: "Cash on Delivery",
-          deliveredDate: "2024-09-08",
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [selectedOrderId, setSelectedOrderId] = useState(null);
+
+  const handleCancelClick = (id) => {
+    setSelectedOrderId(id);
+    setShowConfirm(true);
+  };
+
+  async function getOrders() {
+    try {
+      const fetchedOrders = await fetchOrders();
+      console.log(fetchedOrders);
+
+      // Transform the real data to match the component's expected structure
+      const transformedOrders = fetchedOrders.map((order) => ({
+        id: order.orderNumber,
+        coupon: order.coupon,
+        date: order.createdAt,
+        status: order.status,
+        total: order.total,
+        currency: "LKR",
+        items: order.items || [], // Assuming items structure matches or will be expanded
+        shipping: {
+          method: order.shippingFee > 0 ? "Standard Delivery" : "Free Delivery",
+          address: `${order.shippingAddress.address}, ${order.shippingAddress.city}, ${order.shippingAddress.country}`,
+          trackingNumber: null, // Will be null for pending orders
         },
-        {
-          id: "LX-2024-002",
-          date: "2024-09-03",
-          status: "processing",
-          total: 1450,
-          currency: "USD",
-          items: [
-            {
-              id: 2,
-              name: "LEATHER WALLET",
-              subtitle: "CLASSIC COLLECTION",
-              color: "Black",
-              size: "ONE SIZE",
-              quantity: 1,
-              price: 1450,
-              image: "/Toy.png",
-            },
-          ],
-          shipping: {
-            method: "Standard Delivery",
-            address: "456 Fashion Avenue, Kandy, Sri Lanka",
-            trackingNumber: "LX789123457",
-          },
-          payment: "Cash on Delivery",
-          estimatedDelivery: "2024-09-10",
+        payment: "Cash on Delivery", // Default for now
+        estimatedDelivery: null, // Will be calculated based on status
+        shippingFee: order.shippingFee,
+        subtotal: order.subtotal,
+        discount: order.discount,
+        customerInfo: {
+          name: `${order.shippingAddress.firstName} ${order.shippingAddress.lastName}`,
+          email: order.shippingAddress.email,
+          phone: order.shippingAddress.phone,
         },
-        {
-          id: "LX-2024-003",
-          date: "2024-08-28",
-          status: "shipped",
-          total: 3200,
-          currency: "USD",
-          items: [
-            {
-              id: 3,
-              name: "SILK SCARF",
-              subtitle: "HERITAGE COLLECTION",
-              color: "Royal Blue",
-              size: "90x90cm",
-              quantity: 2,
-              price: 1600,
-              image: "/api/placeholder/120/120",
-            },
-          ],
-          shipping: {
-            method: "Express Delivery",
-            address: "789 Elite Road, Galle, Sri Lanka",
-            trackingNumber: "LX789123458",
-          },
-          payment: "Cash on Delivery",
-          estimatedDelivery: "2024-09-09",
-        },
-        {
-          id: "LX-2024-004",
-          date: "2024-08-15",
-          status: "cancelled",
-          total: 950,
-          currency: "USD",
-          items: [
-            {
-              id: 4,
-              name: "LEATHER BELT",
-              subtitle: "CONTEMPORARY COLLECTION",
-              color: "Brown",
-              size: "95cm",
-              quantity: 1,
-              price: 950,
-              image: "/api/placeholder/120/120",
-            },
-          ],
-          shipping: {
-            method: "Standard Delivery",
-            address: "321 Modern Street, Negombo, Sri Lanka",
-          },
-          payment: "Cash on Delivery",
-          cancelledDate: "2024-08-16",
-          cancelReason: "Customer requested cancellation",
-        },
-      ]);
+      }));
+
+      setOrders(transformedOrders);
       setIsLoading(false);
-    }, 1000);
+    } catch (error) {
+      console.error("Error fetching orders:", error);
+      setIsLoading(false);
+    }
+  }
+  useEffect(() => {
+    getOrders();
   }, []);
 
   const getStatusColor = (status) => {
     const colors = {
+      pending: "#f59e0b",
       processing: "#f59e0b",
       shipped: "#3b82f6",
       delivered: "#10b981",
@@ -131,6 +71,7 @@ export default function MyOrders() {
 
   const getStatusText = (status) => {
     const texts = {
+      pending: "PENDING",
       processing: "PROCESSING",
       shipped: "SHIPPED",
       delivered: "DELIVERED",
@@ -150,6 +91,24 @@ export default function MyOrders() {
       month: "long",
       day: "numeric",
     });
+  };
+
+  const handleConfirmCancel = async () => {
+    try {
+      const deletion = await cancelOrder(selectedOrderId); // your API call
+      console.log(deletion);
+      getOrders(); // refresh list
+    } catch (err) {
+      console.log(err);
+    } finally {
+      setShowConfirm(false);
+      setSelectedOrderId(null);
+    }
+  };
+
+  const handleCancelDialog = () => {
+    setShowConfirm(false);
+    setSelectedOrderId(null);
   };
 
   if (isLoading) {
@@ -252,6 +211,7 @@ export default function MyOrders() {
           background: white;
           transition: all 0.3s ease;
           cursor: pointer;
+          flex-direction: column
         }
 
         .order-header {
@@ -533,6 +493,13 @@ export default function MyOrders() {
           margin-top: 8px;
         }
 
+        .no-items-message {
+          text-align: center;
+          padding: 32px;
+          color: #666;
+          font-style: italic;
+        }
+
         /* Mobile Responsive Styles */
         @media (max-width: 768px) {
           .main-content {
@@ -738,6 +705,16 @@ export default function MyOrders() {
           }
         }
       `}</style>
+      <ConfirmationDialog
+        isOpen={showConfirm}
+        title="Cancel Order?"
+        message="Are you sure you want to cancel this order?"
+        confirmText="Yes, Cancel"
+        cancelText="No"
+        variant="destructive"
+        onConfirm={handleConfirmCancel}
+        onCancel={handleCancelDialog}
+      />
 
       <div className="orders-container">
         <div className="main-content">
@@ -751,19 +728,24 @@ export default function MyOrders() {
           {/* Filters with mobile scroll indicator */}
           <div className="filters-container">
             <div className="filters">
-              {["all", "processing", "shipped", "delivered", "cancelled"].map(
-                (status) => (
-                  <button
-                    key={status}
-                    className={`filter-btn ${
-                      filterStatus === status ? "active" : ""
-                    }`}
-                    onClick={() => setFilterStatus(status)}
-                  >
-                    {status === "all" ? "ALL ORDERS" : getStatusText(status)}
-                  </button>
-                )
-              )}
+              {[
+                "all",
+                "pending",
+                "processing",
+                "shipped",
+                "delivered",
+                "cancelled",
+              ].map((status) => (
+                <button
+                  key={status}
+                  className={`filter-btn ${
+                    filterStatus === status ? "active" : ""
+                  }`}
+                  onClick={() => setFilterStatus(status)}
+                >
+                  {status === "all" ? "ALL ORDERS" : getStatusText(status)}
+                </button>
+              ))}
             </div>
             <div className="scroll-fade"></div>
           </div>
@@ -797,7 +779,7 @@ export default function MyOrders() {
                       {getStatusText(order.status)}
                     </div>
                     <div className="order-total">
-                      ${order.total.toLocaleString()}
+                      LKR {order.total.toLocaleString()}
                     </div>
                     <div className="order-actions">
                       <button
@@ -806,8 +788,21 @@ export default function MyOrders() {
                       >
                         DETAILS
                       </button>
+                      {order.status === "pending" && (
+                        <button
+                          className="action-btn"
+                          onClick={() => handleCancelClick(order.id)}
+                        >
+                          CANCEL
+                        </button>
+                      )}
                       {order.status === "processing" && (
-                        <button className="action-btn">CANCEL</button>
+                        <button
+                          className="action-btn"
+                          onClick={() => handleCancelClick(order.id)}
+                        >
+                          CANCEL
+                        </button>
                       )}
                       {order.status === "shipped" && (
                         <button className="action-btn">TRACK</button>
@@ -819,28 +814,36 @@ export default function MyOrders() {
                   </div>
 
                   <div className="order-items">
-                    {order.items.map((item) => (
-                      <div key={item.id} className="order-item">
-                        <img
-                          src={item.image}
-                          alt={item.name}
-                          className="item-image"
-                        />
-                        <div className="item-details">
-                          <h4>{item.name}</h4>
-                          <p>{item.subtitle}</p>
-                          <p>
-                            Color: {item.color} | Size: {item.size}
-                          </p>
+                    {order.items && order.items.length > 0 ? (
+                      order.items.map((item, index) => (
+                        <div key={item.id || index} className="order-item">
+                          <img
+                            src={item.image || "/api/placeholder/80/80"}
+                            alt={item.name || "Product"}
+                            className="item-image"
+                          />
+                          <div className="item-details">
+                            <h4>{item.name || "Product Name"}</h4>
+                            <p>{item.subtitle || item.description || ""}</p>
+                            <p>
+                              {item.color && `Color: ${item.color}`}
+                              {item.color && item.size && " | "}
+                              {item.size && `Size: ${item.size}`}
+                            </p>
+                          </div>
+                          <div className="item-quantity">
+                            Qty: {item.quantity || 1}
+                          </div>
+                          <div className="item-price">
+                            LKR {(item.price || 0).toLocaleString()}
+                          </div>
                         </div>
-                        <div className="item-quantity">
-                          Qty: {item.quantity}
-                        </div>
-                        <div className="item-price">
-                          ${item.price.toLocaleString()}
-                        </div>
+                      ))
+                    ) : (
+                      <div className="no-items-message">
+                        Item details not available
                       </div>
-                    ))}
+                    )}
                   </div>
                 </div>
               ))}
@@ -888,9 +891,53 @@ export default function MyOrders() {
                       </span>
                     </div>
                     <div className="detail-item">
+                      <span className="detail-label">Subtotal</span>
+                      <span className="detail-value">
+                        LKR {selectedOrder.subtotal?.toLocaleString() || "0"}
+                      </span>
+                    </div>
+                    <div className="detail-item">
+                      <span className="detail-label">Shipping Fee</span>
+                      <span className="detail-value">
+                        {selectedOrder.shippingFee === 0
+                          ? "Free"
+                          : `LKR ${selectedOrder.shippingFee.toLocaleString()}`}
+                      </span>
+                    </div>
+                    {selectedOrder.coupon && (
+                      <div className="detail-item">
+                        <span className="detail-label">
+                          Coupon (Same Coupon Can't be used again)
+                        </span>
+                        <span className="detail-value">
+                          {selectedOrder.coupon
+                            ? Object.entries(selectedOrder.coupon).map(
+                                ([key, value]) => (
+                                  <div
+                                    key={key}
+                                    style={{
+                                      display: "flex",
+                                      justifyContent: "space-between",
+                                    }}
+                                  >
+                                    <span className="detail-label">{key}</span>:{" "}
+                                    <span
+                                      className="detail-value"
+                                      style={{ textTransform: "uppercase" }}
+                                    >
+                                      {value}
+                                    </span>
+                                  </div>
+                                )
+                              )
+                            : "No coupon applied"}
+                        </span>
+                      </div>
+                    )}
+                    <div className="detail-item">
                       <span className="detail-label">Total Amount</span>
                       <span className="detail-value">
-                        ${selectedOrder.total.toLocaleString()}
+                        LKR {selectedOrder.total.toLocaleString()}
                       </span>
                     </div>
                   </div>
@@ -898,26 +945,60 @@ export default function MyOrders() {
 
                 <div className="detail-section">
                   <h4>Items Ordered</h4>
-                  {selectedOrder.items.map((item) => (
-                    <div key={item.id} className="order-item">
-                      <img
-                        src={item.image}
-                        alt={item.name}
-                        className="item-image"
-                      />
-                      <div className="item-details">
-                        <h4>{item.name}</h4>
-                        <p>{item.subtitle}</p>
-                        <p>
-                          Color: {item.color} | Size: {item.size}
-                        </p>
+                  {selectedOrder.items && selectedOrder.items.length > 0 ? (
+                    selectedOrder.items.map((item, index) => (
+                      <div key={item.id || index} className="order-item">
+                        <img
+                          src={item.image || "/api/placeholder/80/80"}
+                          alt={item.name || "Product"}
+                          className="item-image"
+                        />
+                        <div className="item-details">
+                          <h4>{item.name || "Product Name"}</h4>
+                          <p>{item.subtitle || item.description || ""}</p>
+                          <p>
+                            {item.color && `Color: ${item.color}`}
+                            {item.color && item.size && " | "}
+                            {item.size && `Size: ${item.size}`}
+                          </p>
+                        </div>
+                        <div className="item-quantity">
+                          Qty: {item.quantity || 1}
+                        </div>
+                        <div className="item-price">
+                          LKR {(item.price || 0).toLocaleString()}
+                        </div>
                       </div>
-                      <div className="item-quantity">Qty: {item.quantity}</div>
-                      <div className="item-price">
-                        ${item.price.toLocaleString()}
-                      </div>
+                    ))
+                  ) : (
+                    <div className="no-items-message">
+                      Item details not available
                     </div>
-                  ))}
+                  )}
+                </div>
+
+                <div className="detail-section">
+                  <h4>Customer Information</h4>
+                  <div className="detail-grid">
+                    <div className="detail-item">
+                      <span className="detail-label">Customer Name</span>
+                      <span className="detail-value">
+                        {selectedOrder.customerInfo?.name || "Not provided"}
+                      </span>
+                    </div>
+                    <div className="detail-item">
+                      <span className="detail-label">Email</span>
+                      <span className="detail-value">
+                        {selectedOrder.customerInfo?.email || "Not provided"}
+                      </span>
+                    </div>
+                    <div className="detail-item">
+                      <span className="detail-label">Phone</span>
+                      <span className="detail-value">
+                        {selectedOrder.customerInfo?.phone || "Not provided"}
+                      </span>
+                    </div>
+                  </div>
                 </div>
 
                 <div className="detail-section">

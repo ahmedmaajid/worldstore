@@ -16,11 +16,13 @@ export default function Login() {
   const navigate = useNavigate();
   useEffect(() => {
     const verify = async () => {
-      const isLoggedIn = await checkAuth();
-      if (isLoggedIn) {
-        navigate("/");
-      } else {
-        console.log("Not logged in");
+      const res = await checkAuth();
+      if (res) {
+        if (res.isAdmin) {
+          navigate("/admin/dashboard");
+        } else {
+          navigate("/");
+        }
       }
     };
     verify();
@@ -36,6 +38,37 @@ export default function Login() {
     }
   };
 
+  // const handlePasswordSubmit = async () => {
+  //   if (!password.trim()) return;
+  //   setIsLoading(true);
+  //   try {
+  //     const data = await loginUser({ email, password });
+  //     setPopup(null);
+  //     setTimeout(() => {
+  //       setPopup({
+  //         status: data.status,
+  //         message: data.message,
+  //         key: Date.now(),
+  //       });
+  //     }, 0);
+  //     setTimeout(() => {
+  //       window.location.href = "/";
+  //     }, 2000);
+  //   } catch (err) {
+  //     const errorMsg = err.response?.data?.message || "Login failed";
+  //     setPopup(null);
+  //     setTimeout(() => {
+  //       setPopup({
+  //         status: "error", // <- fixed
+  //         message: errorMsg,
+  //         key: Date.now(),
+  //       });
+  //     }, 0);
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // };
+
   const handlePasswordSubmit = async () => {
     if (!password.trim()) return;
     setIsLoading(true);
@@ -49,15 +82,25 @@ export default function Login() {
           key: Date.now(),
         });
       }, 0);
-      setTimeout(() => {
-        window.location.href = "/";
-      }, 2000);
+
+      // 🎯 Corrected Logic: Only redirect on successful login
+      if (data.status === "success") {
+        setTimeout(() => {
+          // Check if the user is an admin for proper redirection
+          console.log("Data", data.user);
+          if (data.user.isAdmin) {
+            navigate("/admin/dashboard");
+          } else {
+            navigate("/");
+          }
+        }, 1000); // Wait for the popup to be seen
+      }
     } catch (err) {
       const errorMsg = err.response?.data?.message || "Login failed";
       setPopup(null);
       setTimeout(() => {
         setPopup({
-          status: "error", // <- fixed
+          status: "error",
           message: errorMsg,
           key: Date.now(),
         });
@@ -66,7 +109,6 @@ export default function Login() {
       setIsLoading(false);
     }
   };
-
   const handleBack = () => {
     setStep(1);
     setPassword("");

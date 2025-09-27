@@ -3,11 +3,15 @@ import "../../styles/client/nav.css";
 import { Heart, Menu, Search, User, X, Handbag } from "lucide-react";
 import Sidebar from "../../components/client/Sidebar";
 import { Link } from "react-router-dom";
+import { getProducts } from "../../api/products";
+import { formatPrice } from "../../utils/formatPrice";
 
 export default function Navbar() {
   const [searchOpen, setSearchOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  const [products, setProducts] = useState([]);
 
   function handleClick() {
     setSearchOpen(!searchOpen);
@@ -22,42 +26,21 @@ export default function Navbar() {
       sidebarOpen || searchOpen ? "hidden" : "auto";
   }, [sidebarOpen, searchOpen]);
 
-  // Dummy products
-  const products = [
-    {
-      id: 1,
-      name: "Classic Leather Bag",
-      price: 299,
-      image: "/Hero.webp",
-    },
-    {
-      id: 2,
-      name: "Luxury Watch",
-      price: 499,
-      image: "/Hero.webp",
-    },
-    {
-      id: 3,
-      name: "Silk Scarf",
-      price: 149,
-      image: "/Hero.webp",
-    },
-    {
-      id: 4,
-      name: "Designer Shoes",
-      price: 399,
-      image: "/Hero.webp",
-    },
-    {
-      id: 5,
-      name: "Minimalist Sunglasses",
-      price: 199,
-      image: "/Hero.webp",
-    },
-  ];
+  useEffect(() => {
+    async function getData() {
+      const products = await getProducts();
+      setProducts(products);
+    }
+    getData();
+  }, []);
+  function getRandomTrending(products, count = 4) {
+    const shuffled = [...products].sort(() => 0.5 - Math.random());
+    return shuffled.slice(0, count);
+  }
 
+  const trendingProducts = getRandomTrending(products);
   // Filter products by query
-  const filteredProducts = products.filter((p) =>
+  const filteredProducts = trendingProducts.filter((p) =>
     p.name.toLowerCase().includes(query.toLowerCase())
   );
 
@@ -75,7 +58,7 @@ export default function Navbar() {
           </button>
         </div>
 
-        <a href="/" className="navbar-logo">
+        <a href="#" className="navbar-logo">
           {/* World Store */}
           {/* <img src="./World Store.jpg" alt="" /> */}
           <img
@@ -126,10 +109,11 @@ export default function Navbar() {
           <div className="trending">
             <span>Trending searches</span>
             <div className="tags">
-              <button>t shirt</button>
-              <button>shoes</button>
-              <button>wallet</button>
-              <button>sunglasses men</button>
+              {trendingProducts.map((p) => (
+                <button key={p._id} onClick={() => setQuery(p.name)}>
+                  {p.name}
+                </button>
+              ))}
             </div>
           </div>
         </div>
@@ -137,11 +121,47 @@ export default function Navbar() {
         {/* Products */}
         <div className="search-results">
           {filteredProducts.length > 0 ? (
-            filteredProducts.map((p) => (
-              <div key={p.id} className="product-card">
-                <img src={p.image} alt={p.name} />
-                <h3 className="product-name">{p.name}</h3>
-                <p>${p.price}</p>
+            filteredProducts.map((product) => (
+              <div key={product.id} className="product-card">
+                <img src={product.mainImages[0]} alt={product.name} />
+                <h3 className="product-name">{product.name}</h3>
+                {product.price > 0 ? (
+                  <div>
+                    {/* if discount show both */}
+                    {product.discountPrice ? (
+                      <>
+                        <span className="price line-through">
+                          {formatPrice(product.price)}
+                        </span>
+                        <span className="price discount">
+                          {formatPrice(product.discountPrice)}
+                        </span>
+                      </>
+                    ) : (
+                      <span className="price">
+                        {formatPrice(product.price)}
+                      </span>
+                    )}
+                  </div>
+                ) : (
+                  <div>
+                    {/* price comes from first variation */}
+                    {product.variations && product.variations.length > 0 ? (
+                      <>
+                        <span className="price">
+                          {formatPrice(product.variations[0].price)}
+                        </span>
+                        {product.variations[0].discountPrice && (
+                          <span className="price discount">
+                            {formatPrice(product.variations[0].discountPrice)}
+                          </span>
+                        )}
+                      </>
+                    ) : (
+                      <span className="price">N/A</span>
+                    )}
+                  </div>
+                )}
               </div>
             ))
           ) : (

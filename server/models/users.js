@@ -25,6 +25,7 @@ const userSchema = new mongoose.Schema(
             required: true,
             minlength: 6,
         },
+        usedCoupons: [{ type: String }],
         isAdmin: {
             type: Boolean,
             default: false,
