@@ -217,7 +217,7 @@ const Filter = ({ isOpen, toggle, filters, setFilters, categoriesData }) => {
 
     if (!hasChildren) {
       return (
-        <label key={category.id} className="category-label">
+        <label key={category._id} className="category-label">
           {/* <input
             type="checkbox"
             value={category.name}
@@ -226,8 +226,8 @@ const Filter = ({ isOpen, toggle, filters, setFilters, categoriesData }) => {
           /> */}
           <input
             type="checkbox"
-            value={category.id} // or category._id (check your DB schema)
-            checked={filters.categories.includes(category.id)}
+            value={category._id} // or category._id (check your DB schema)
+            checked={filters.categories.includes(category._id)}
             onChange={handleSubcategoryChange}
           />
 
@@ -237,16 +237,16 @@ const Filter = ({ isOpen, toggle, filters, setFilters, categoriesData }) => {
     }
 
     return (
-      <div key={category.id} className="category-item">
+      <div key={category._id} className="category-item">
         <div
           className="category-header"
-          onClick={() => handleCategoryToggle(category.id)}
+          onClick={() => handleCategoryToggle(category._id)}
           style={{ cursor: "pointer" }}
         >
           <span>{category.name}</span>
-          {openCategories[category.id] ? <ChevronUp /> : <ChevronDown />}
+          {openCategories[category._id] ? <ChevronUp /> : <ChevronDown />}
         </div>
-        {openCategories[category.id] && (
+        {openCategories[category._id] && (
           <div className="subcategories">
             {category.subcategories?.map((sub) => renderCategory(sub))}
             {category.subsubcategories?.map((subsub) => renderCategory(subsub))}

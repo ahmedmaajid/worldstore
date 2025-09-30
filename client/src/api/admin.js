@@ -1,3 +1,4 @@
+import { Axis3D } from "lucide-react"
 import axios from "./axios"
 
 
@@ -6,6 +7,11 @@ import axios from "./axios"
 export const isAdmin = async () => {
     const res = await axios.get("/api/admin/isAdmin", { withCredentials: true })
     return res.data.isAdmin
+}
+
+export const getDashboardData = async () => {
+    const res = await axios.get("/api/admin/dashboard");
+    return res.data;
 }
 
 export const addCategory = async (category) => {
@@ -63,8 +69,21 @@ export const getProducts = async (productId) => {
     return res.data
 }
 
+export const getOrders = async () => {
+    const res = await axios.get("/api/admin/get-orders");
+    return res.data
+}
+
 export const updateProduct = async (id, data) => {
     const res = await axios.patch(`/api/admin/products/${id}`, data);
+    return res.data;
+};
+
+export const updateOrderStatuses = async (orderId, newStatus) => {
+    const res = await axios.patch('/api/admin/update-order-status', {
+        orderId,
+        newStatus,
+    });
     return res.data;
 };
 

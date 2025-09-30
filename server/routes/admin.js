@@ -16,7 +16,10 @@ import {
     deleteCoupon,
     isAdmin,
     deleteShippingFee,
-    getCommerceData
+    getCommerceData,
+    getAllOrders,
+    updateOrderStatus,
+    getDashboardData
 } from "../controllers/adminController.js";
 
 import multer from "multer";
@@ -32,9 +35,11 @@ adminRoutes.use(protect, requireAdmin);
 adminRoutes.get("/isAdmin", isAdmin)
 adminRoutes.post("/addCategory", upload.single("image"), addCategory);
 adminRoutes.put("/updateCategory/:id", upload.single("image"), updateCategory);
+adminRoutes.patch("/update-order-status", protect, updateOrderStatus)
 adminRoutes.delete("/deleteCategory/:id", deleteCategory);
 adminRoutes.get("/getCategories", getCategories);
-
+adminRoutes.get("/get-orders", getAllOrders)
+adminRoutes.get("/dashboard", protect, getDashboardData)
 
 // Get customers
 adminRoutes.get("/customers", getCustomers)

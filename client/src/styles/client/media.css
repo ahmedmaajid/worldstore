@@ -274,6 +274,18 @@
     grid-template-columns: repeat(2, 1fr) !important;
   }
 }
+@media (max-width: 414px) {
+  .products.new-arrival-products {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    overflow: hidden; /* no horizontal scroll */
+  }
+
+  .new-arrival-product-card {
+    width: 100% !important;
+  }
+}
 
 /* --- New Media Query for Small Screens --- */
 @media (max-width: 414px) {
@@ -394,3 +406,51 @@
 }
 
 /* All previous CSS code remains unchanged */
+@media (max-width: 414px) {
+  .products.new-arrival-products {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr);
+    row-gap: 22px;
+    width: 100%;
+    box-sizing: border-box;
+    white-space: normal !important; /* stop any nowrap behavior */
+    overflow: visible;
+  }
+
+  .new-arrival-product-card {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important; /* <-- key: allows it to shrink */
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    flex: 0 1 auto !important;
+    padding: 10px;
+    border: 1px solid #f9f9f9;
+  }
+
+  .new-arrival-product-image {
+    display: block;
+    width: 100% !important;
+    max-width: 100% !important;
+    height: auto !important;
+    max-height: 160px; /* tune this if needed */
+    object-fit: contain;
+  }
+
+  .new-arrival-product-info {
+    min-width: 0; /* also important for text overflow */
+    overflow: hidden;
+    width: 100%;
+    text-align: start;
+    text-overflow: ellipsis;
+    word-break: break-word;
+  }
+
+  .new-arrival-product-info .product-name {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}

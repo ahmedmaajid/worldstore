@@ -11,6 +11,7 @@ const Customers = () => {
     async function fetchCustomers() {
       try {
         const response = await getCustomers();
+        console.log(response);
         setCustomers(Array.isArray(response) ? response : []);
       } catch (error) {
         console.log(error);

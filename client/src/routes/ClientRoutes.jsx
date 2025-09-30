@@ -13,6 +13,7 @@ import MyOrders from "../pages/client/MyOrders";
 import Nav from "../components/client/Navbar";
 import Sidebar from "../components/client/Sidebar";
 import MobileFooterNav from "../components/client/MobileFooterNav";
+import OrderDetails from "../pages/client/OrderDetails";
 export default function ClientRoutes({
   openSidebar,
   sidebarOpen,
@@ -33,6 +34,7 @@ export default function ClientRoutes({
         <Route path="/account/signup" element={<SignUp />} />
         <Route path="/product/:slug" element={<Preview />} />
         <Route path="/my-orders" element={<MyOrders />} />
+        <Route path="/track-order/:id" element={<OrderDetails />} />
         {/* <Route
           path="/product/"
           element={

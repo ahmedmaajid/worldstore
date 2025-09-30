@@ -12,7 +12,7 @@ const VariationModal = ({ product, onClose, onVariationDeleted }) => {
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [variationToDeleteId, setVariationToDeleteId] = useState(null);
   const [variations, setVariations] = useState(product.variations || []);
-  if (!product || !variations || variations.length === 0) {
+  if (!product || product.hasVariations === false) {
     return null;
   }
 
@@ -134,7 +134,7 @@ const VariationModal = ({ product, onClose, onVariationDeleted }) => {
                       <DollarSign size={12} />
                       <span className="info-label">Price:</span>
                       <span className="price-value">
-                        ${variation.price?.toLocaleString()}
+                        LKR {variation.price?.toLocaleString()}
                       </span>
                     </div>
                   </div>

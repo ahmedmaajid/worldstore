@@ -5,12 +5,56 @@ import commerce from "../models/commerce.js"
 import { Product } from "../models/products.js";
 import slugify from "slugify";
 import Order from "../models/orders.js"
+import { mail_order_status_changes } from "../mail/MailToCustomer.js";
 
-
+// Framewall#sendgrid1
 export const isAdmin = async (req, res) => {
     return res.json({ isAdmin: req.user.isAdmin });
 }
+export const getDashboardData = async (req, res) => {
+    try {
+        // Stats
+        const totalRevenue = await Order.aggregate([
+            { $group: { _id: null, revenue: { $sum: "$total" } } },
+        ]);
+        const totalUsers = await User.countDocuments();
+        const totalOrders = await Order.countDocuments();
 
+        // Recent orders (latest 5)
+        const recentOrders = await Order.find()
+            .sort({ createdAt: -1 })
+            .limit(5)
+            .populate("user", "name email");
+
+        // Top products by sales (limit 5)
+        const topProducts = await Order.aggregate([
+            { $unwind: "$items" },
+            {
+                $group: {
+                    _id: "$items.productId",
+                    name: { $first: "$items.name" },
+                    sales: { $sum: "$items.quantity" },
+                    revenue: { $sum: "$items.totalPrice" },
+                },
+            },
+            { $sort: { sales: -1 } },
+            { $limit: 5 },
+        ]);
+
+        res.json({
+            stats: {
+                revenue: totalRevenue[0]?.revenue || 0,
+                users: totalUsers,
+                orders: totalOrders,
+            },
+            recentOrders,
+            topProducts,
+        });
+    } catch (err) {
+        console.error("Dashboard error:", err);
+        res.status(500).json({ message: "Failed to load dashboard data" });
+    }
+}
 export const addCategory = async (req, res) => {
     try {
         const { name, parentId } = req.body;
@@ -456,6 +500,62 @@ export const updateProduct = async (req, res) => {
 
 }
 
+// export const updateOrderStatus = async (req, res) => {
+//     try {
+//         const { orderId, newStatus } = req.body;
+
+//         // Validate status
+//         const allowedStatuses = ["pending", "processing", "paid", "shipped", "delivered", "cancelled"];
+//         if (!allowedStatuses.includes(newStatus)) {
+//             return res.json({ message: "Invalid status" });
+//         }
+
+//         // Find and update the order
+//         const updatedOrder = await Order.findByIdAndUpdate(
+//             orderId,
+//             { status: newStatus },
+//             { new: true }
+//         );
+
+//         if (!updatedOrder) {
+//             return res.status(404).json({ message: "Order not found" });
+//         }
+
+//         res.json({ message: "Order updated successfully", order: updatedOrder });
+//     } catch (err) {
+//         console.error(err);
+//         res.status(500).json({ message: "Failed to update order" });
+//     }
+// };
+
+export const updateOrderStatus = async (req, res) => {
+    try {
+        const { orderId, newStatus } = req.body;
+
+        const allowedStatuses = ["pending", "processing", "paid", "shipped", "delivered", "cancelled"];
+        if (!allowedStatuses.includes(newStatus)) {
+            return res.json({ message: "Invalid status" });
+        }
+
+        const updatedOrder = await Order.findByIdAndUpdate(
+            orderId,
+            { status: newStatus },
+            { new: true }
+        );
+
+        if (!updatedOrder) {
+            return res.status(404).json({ message: "Order not found" });
+        }
+
+        // Pass the full order object and new status
+        await mail_order_status_changes(updatedOrder.toObject(), newStatus);
+
+        res.json({ message: "Order updated successfully", order: updatedOrder });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: "Failed to update order" });
+    }
+};
 export const deleteProduct = async (req, res) => {
     try {
         const { id } = req.params;
@@ -608,5 +708,14 @@ export const getCommerceData = async (req, res) => {
     } catch (error) {
         console.log(error)
         res.json(error)
+    }
+}
+
+export const getAllOrders = async (req, res) => {
+    try {
+        const orders = await Order.find();
+        res.json(orders)
+    } catch (error) {
+        res.json({ message: error })
     }
 }

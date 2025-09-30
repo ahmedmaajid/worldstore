@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { cancelOrder, fetchOrders } from "../../api/order";
 import { ConfirmationDialog } from "../../components/client/ConfirmationDialog";
+import PopMessage from "../../components/client/PopMessage";
+import { Spinner } from "../../components/client/Spinner";
+import { Navigate, useNavigate } from "react-router-dom";
 
 export default function MyOrders() {
   const [orders, setOrders] = useState([]);
@@ -10,6 +13,7 @@ export default function MyOrders() {
 
   const [showConfirm, setShowConfirm] = useState(false);
   const [selectedOrderId, setSelectedOrderId] = useState(null);
+  const [trackingId, setTrackingId] = useState(null);
 
   const handleCancelClick = (id) => {
     setSelectedOrderId(id);
@@ -23,6 +27,7 @@ export default function MyOrders() {
 
       // Transform the real data to match the component's expected structure
       const transformedOrders = fetchedOrders.map((order) => ({
+        _id: order._id,
         id: order.orderNumber,
         coupon: order.coupon,
         date: order.createdAt,
@@ -48,6 +53,7 @@ export default function MyOrders() {
       }));
 
       setOrders(transformedOrders);
+      setTrackingId(transformedOrders[0]._id);
       setIsLoading(false);
     } catch (error) {
       console.error("Error fetching orders:", error);
@@ -92,17 +98,30 @@ export default function MyOrders() {
       day: "numeric",
     });
   };
+  const navigate = useNavigate();
+
+  const [popUp, setPopUp] = useState({ state: false, message: "", status: "" });
+  const [spinner, setSpinner] = useState(false);
 
   const handleConfirmCancel = async () => {
     try {
+      setSpinner(true);
       const deletion = await cancelOrder(selectedOrderId); // your API call
+      setPopUp({ state: true, message: deletion.message, status: "success" });
       console.log(deletion);
       getOrders(); // refresh list
     } catch (err) {
+      setSpinner(false);
+      setPopUp({
+        state: true,
+        message: err ? err : "Something went wrong",
+        status: "success",
+      });
       console.log(err);
     } finally {
       setShowConfirm(false);
       setSelectedOrderId(null);
+      setSpinner(false);
     }
   };
 
@@ -310,7 +329,7 @@ export default function MyOrders() {
         .item-details h4 {
           font-size: 14px;
           font-weight: 500;
-          letter-spacing: 0.05em;
+          // letter-spacing: 0.05em;
           margin-bottom: 4px;
         }
 
@@ -491,6 +510,7 @@ export default function MyOrders() {
           padding: 12px 16px;
           border: 1px solid #e5e5e5;
           margin-top: 8px;
+          display: flex
         }
 
         .no-items-message {
@@ -705,6 +725,11 @@ export default function MyOrders() {
           }
         }
       `}</style>
+
+      {spinner && <Spinner />}
+      {popUp.state && (
+        <PopMessage message={popUp.message} status={popUp.status} />
+      )}
       <ConfirmationDialog
         isOpen={showConfirm}
         title="Cancel Order?"
@@ -825,10 +850,16 @@ export default function MyOrders() {
                           <div className="item-details">
                             <h4>{item.name || "Product Name"}</h4>
                             <p>{item.subtitle || item.description || ""}</p>
-                            <p>
-                              {item.color && `Color: ${item.color}`}
-                              {item.color && item.size && " | "}
-                              {item.size && `Size: ${item.size}`}
+                            <p style={{ textTransform: "capitalize" }}>
+                              {item.attributes &&
+                                Object.entries(item.attributes).map(
+                                  ([key, value], idx, arr) => (
+                                    <span key={key}>
+                                      {key}: {value}
+                                      {idx < arr.length - 1 && " | "}
+                                    </span>
+                                  )
+                                )}
                             </p>
                           </div>
                           <div className="item-quantity">
@@ -1042,6 +1073,19 @@ export default function MyOrders() {
                       </div>
                     </div>
                   )}
+                  <div className="tracking-section">
+                    <div className="detail-label">Tracking Your Order</div>
+                    <div className="tracking-number">
+                      <button
+                        onClick={() =>
+                          navigate(`/track-order/${selectedOrder._id}`)
+                        }
+                        style={{ flex: "1" }}
+                      >
+                        Track Order
+                      </button>
+                    </div>
+                  </div>
                 </div>
 
                 {selectedOrder.status === "cancelled" &&

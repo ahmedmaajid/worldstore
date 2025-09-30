@@ -122,7 +122,12 @@ export default function Navbar() {
         <div className="search-results">
           {filteredProducts.length > 0 ? (
             filteredProducts.map((product) => (
-              <div key={product.id} className="product-card">
+              <Link
+                to={`/product/${product.slug}`}
+                key={product.id}
+                className="product-card"
+                onClick={() => setSearchOpen(false)}
+              >
                 <img src={product.mainImages[0]} alt={product.name} />
                 <h3 className="product-name">{product.name}</h3>
                 {product.price > 0 ? (
@@ -162,7 +167,7 @@ export default function Navbar() {
                     )}
                   </div>
                 )}
-              </div>
+              </Link>
             ))
           ) : (
             <p className="no-results">No products found</p>

@@ -1243,6 +1243,31 @@ export default function Shop() {
     });
   };
 
+  // const shop_applyFilters = (product) => {
+  //   const getProductPrice = (p) => {
+  //     if (p.discountedPrice && p.discountedPrice > 0) return p.discountedPrice;
+  //     if (p.price && p.price > 0) return p.price;
+  //     if (p.variations?.length > 0) {
+  //       const firstVar = p.variations[0];
+  //       return firstVar.discountedPrice > 0
+  //         ? firstVar.discountedPrice
+  //         : firstVar.price;
+  //     }
+  //     return 0;
+  //   };
+
+  //   const productPrice = getProductPrice(product);
+  //   const isPriceMatch =
+  //     productPrice >= shop_filters.minPrice &&
+  //     productPrice <= shop_filters.maxPrice;
+
+  //   const isSearchMatch =
+  //     !shop_searchQuery ||
+  //     product.name.toLowerCase().includes(shop_searchQuery.toLowerCase());
+
+  //   return isPriceMatch && isSearchMatch;
+  // };
+
   const shop_applyFilters = (product) => {
     const getProductPrice = (p) => {
       if (p.discountedPrice && p.discountedPrice > 0) return p.discountedPrice;
@@ -1265,9 +1290,13 @@ export default function Shop() {
       !shop_searchQuery ||
       product.name.toLowerCase().includes(shop_searchQuery.toLowerCase());
 
-    return isPriceMatch && isSearchMatch;
-  };
+    // Add category filtering logic
+    const isCategoryMatch =
+      shop_filters.categories.length === 0 ||
+      shop_filters.categories.includes(product.category);
 
+    return isPriceMatch && isSearchMatch && isCategoryMatch;
+  };
   const shop_sortedAndFilteredProducts = [...shop_productsData]
     .filter(shop_applyFilters)
     .sort((a, b) => {
@@ -1348,35 +1377,37 @@ export default function Shop() {
       {shop_showSpinner.state && <Spinner message={shop_showSpinner.message} />}
 
       {/* Header Section */}
-      <div className="shop-header-section">
-        <div className="shop-header-content">
-          {categoryBySlug.length > 0 ? (
-            <div className="luxury-subcategories-showcase">
-              <div className="luxury-subcategories-grid">
-                {categoryBySlug.map((subcat, ind) => (
-                  <Link
-                    key={subcat._id || ind}
-                    to={`${location.pathname}/${slugify(subcat.name)}`}
-                    className="luxury-subcat-item"
-                  >
-                    <div className="luxury-subcat-image">
-                      <img
-                        src={subcat.image || "/default-category.jpg"}
-                        alt={subcat.name}
-                        onError={(e) =>
-                          (e.target.src = "/default-category.jpg")
-                        }
-                      />
-                      <div className="luxury-subcat-overlay"></div>
-                    </div>
-                    <span className="luxury-subcat-name">{subcat.name}</span>
-                  </Link>
-                ))}
+      {categoryBySlug.length > 0 && (
+        <div className="shop-header-section">
+          <div className="shop-header-content">
+            {categoryBySlug.length > 0 ? (
+              <div className="luxury-subcategories-showcase">
+                <div className="luxury-subcategories-grid">
+                  {categoryBySlug.map((subcat, ind) => (
+                    <Link
+                      key={subcat._id || ind}
+                      to={`${location.pathname}/${slugify(subcat.name)}`}
+                      className="luxury-subcat-item"
+                    >
+                      <div className="luxury-subcat-image">
+                        <img
+                          src={subcat.image || "/default-category.jpg"}
+                          alt={subcat.name}
+                          onError={(e) =>
+                            (e.target.src = "/default-category.jpg")
+                          }
+                        />
+                        <div className="luxury-subcat-overlay"></div>
+                      </div>
+                      <span className="luxury-subcat-name">{subcat.name}</span>
+                    </Link>
+                  ))}
+                </div>
               </div>
-            </div>
-          ) : null}
+            ) : null}
+          </div>
         </div>
-      </div>
+      )}
 
       <div className="shop-subcategories-section">
         <nav className="shop-breadcrumb">
@@ -1610,9 +1641,11 @@ export default function Shop() {
                         alignItems: "center",
                       }}
                     >
-                      <span className="product-variation-count">
-                        +{product.variations?.length || 0} variations
-                      </span>
+                      {/* <span className="product-variation-count">
+                        {product.variations.length > 0
+                          ? `+${product.variations.length} variations`
+                          : null}
+                      </span> */}
                       <div className="shop-product-stock">
                         <div
                           className={`shop-stock-dot ${

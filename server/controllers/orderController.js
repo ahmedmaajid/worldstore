@@ -2,6 +2,9 @@ import orders from "../models/orders.js";
 import User from "../models/users.js";
 import Commerce from "../models/commerce.js";
 import Cart from "../models/cart.js";
+import { orderConfirmation } from "../mail/MailToCustomer.js";
+import { mail_a_new_cartOrder, newOrderAlert, orderCancellation } from "../mail/MailToAdmin.js";
+import { mail_c_new_cartOrder } from "../mail/MailToCustomer.js";
 // export const createOrder = async (req, res) => {
 //     try {
 //         const { formData, appliedPromo, total, cartItems, shippingFee } = req.body;
@@ -131,6 +134,7 @@ export const createOrder = async (req, res) => {
     try {
         const { formData, appliedPromo, total, cartItems, shippingFee, freeShippingOver } = req.body;
         const userId = req.user.id;
+        if (!userId) return res.json({ message: "User is not logged in!" })
 
         // Get current commerce data for accurate calculations
         const commerceData = await Commerce.findOne(); // Adjust model name as needed
@@ -212,6 +216,8 @@ export const createOrder = async (req, res) => {
 
         // Clear user's cart after successful order
         await Cart.deleteMany({ userId }); // Adjust model name as needed
+        await mail_c_new_cartOrder(newOrder.toObject())
+        await mail_a_new_cartOrder(newOrder.toObject())
 
         res.json({ message: "Order created successfully", order: newOrder });
     } catch (err) {
@@ -223,6 +229,60 @@ export const createOrder = async (req, res) => {
 
 
 // New endpoint for direct purchases from preview page
+// export const createDirectOrder = async (req, res) => {
+//     try {
+//         const {
+//             productId, productName, productImage, variationId,
+//             variationAttributes, unitPrice, quantity, totalPrice,
+//             deliveryFee, finalTotal, shippingAddress
+//         } = req.body;
+
+//         const userId = req.user?.id || null;
+//         console.log("user id", userId)
+
+//         // Get current commerce data
+//         const commerceData = await Commerce.findOne();
+//         const currentFreeShippingThreshold = commerceData?.freeShippingOver || 5000;
+//         const currentShippingFee = commerceData?.shippingFee || 500;
+
+//         // Calculate actual shipping fee
+//         const actualShippingFee = totalPrice >= currentFreeShippingThreshold ? 0 : currentShippingFee;
+//         const actualTotal = totalPrice + actualShippingFee;
+
+//         // Create order
+//         const newOrder = new orders({
+//             user: userId,
+//             items: [{
+//                 productId: productId,
+//                 variationId: variationId,
+//                 name: productName,
+//                 price: unitPrice,
+//                 quantity: quantity,
+//                 totalPrice: totalPrice,
+//                 image: productImage,
+//                 attributes: variationAttributes
+//             }],
+//             shippingFee: actualShippingFee,
+//             freeShippingOver: currentFreeShippingThreshold,
+//             subtotal: totalPrice,
+//             discount: 0,
+//             total: actualTotal,
+//             shippingAddress: shippingAddress,
+//         });
+
+//         await newOrder.save();
+
+//         res.json({
+//             message: "Order placed successfully",
+//             order: newOrder
+//         });
+
+//     } catch (error) {
+//         console.error("Error creating direct order:", error);
+//         res.status(500).json({ message: "Failed to create order" });
+//     }
+// };
+
 export const createDirectOrder = async (req, res) => {
     try {
         const {
@@ -231,20 +291,20 @@ export const createDirectOrder = async (req, res) => {
             deliveryFee, finalTotal, shippingAddress
         } = req.body;
 
-        const userId = req.user.id;
+        const userId = req.user?.id || null;
+        console.log("user id", userId)
 
-        // Get current commerce data
+        // Get current commerce data 
         const commerceData = await Commerce.findOne();
         const currentFreeShippingThreshold = commerceData?.freeShippingOver || 5000;
         const currentShippingFee = commerceData?.shippingFee || 500;
 
-        // Calculate actual shipping fee
+        // Calculate actual shipping fee 
         const actualShippingFee = totalPrice >= currentFreeShippingThreshold ? 0 : currentShippingFee;
         const actualTotal = totalPrice + actualShippingFee;
 
-        // Create order
-        const newOrder = new orders({
-            user: userId,
+        // Create order data conditionally
+        const orderData = {
             items: [{
                 productId: productId,
                 variationId: variationId,
@@ -261,10 +321,19 @@ export const createDirectOrder = async (req, res) => {
             discount: 0,
             total: actualTotal,
             shippingAddress: shippingAddress,
-        });
+        };
+
+        // Only add user field if user is logged in
+        if (userId) {
+            orderData.user = userId;
+        }
+
+        // Create order 
+        const newOrder = new orders(orderData);
 
         await newOrder.save();
-
+        await orderConfirmation(newOrder)
+        await newOrderAlert(newOrder)
         res.json({
             message: "Order placed successfully",
             order: newOrder
@@ -311,6 +380,7 @@ export const cancelOrder = async (req, res) => {
         order.status = "cancelled";
         await order.save();
 
+        await orderCancellation(order)
         res.json({
             message: "Order cancelled successfully",
             order,
@@ -320,3 +390,24 @@ export const cancelOrder = async (req, res) => {
         res.status(500).json({ message: "Failed to cancel order" });
     }
 };
+
+export const fetchOrder = async (req, res) => {
+    try {
+        console.log(req.params)
+        const order = await orders.findById(req.params.id);
+
+        if (!order) {
+            return res.status(404).json({ message: "Order not found" });
+        }
+
+        // Verify the order belongs to the user
+        if (order.user.toString() !== req.user.id) {
+            return res.status(403).json({ message: "Unauthorized" });
+        }
+
+        res.json(order);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: "Failed to fetch order" });
+    }
+}

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { resolvePath, useParams } from "react-router-dom";
+import { Navigate, resolvePath, useParams } from "react-router-dom";
 import { getProduct } from "../../api/products.js";
 import { Handbag, Heart } from "lucide-react";
 import PopMessage from "../../components/client/PopMessage";
@@ -56,6 +56,53 @@ export default function Preview() {
     }
     fetchProduct();
   }, [slug]);
+
+  console.log(product);
+
+  console.log(product);
+
+  const [mainImage, setMainImage] = useState(null);
+
+  // Set initial main image when product loads
+  useEffect(() => {
+    if (!product) return;
+
+    let initialImage = null;
+
+    // Priority: Product main images FIRST
+    if (product.mainImages && product.mainImages.length > 0) {
+      initialImage = product.mainImages[0];
+    } else if (selectedVariation && selectedVariation.images?.length > 0) {
+      // Only use variation image if product has no main images
+      initialImage = selectedVariation.images[0];
+    }
+
+    setMainImage(initialImage);
+  }, [product]);
+
+  // When variation changes, update main image to variation's first image (if exists)
+  useEffect(() => {
+    if (selectedVariation) {
+      // if variation has single `image`
+      if (selectedVariation.image) {
+        setMainImage(selectedVariation.image);
+      }
+      // or if it has an array `images`
+      else if (selectedVariation.images?.length > 0) {
+        setMainImage(selectedVariation.images[0]);
+      }
+    }
+  }, [selectedVariation]);
+
+  // Inside the Preview component
+  const handleImageSwitch = (newImageUrl) => {
+    setMainImage(newImageUrl);
+  };
+
+  const allImages = [
+    ...(product?.mainImages || []),
+    ...(selectedVariation?.images || []),
+  ].filter((url, index, self) => url && self.indexOf(url) === index);
 
   const [shippingFee, setShippingFee] = useState(0);
 
@@ -289,8 +336,11 @@ export default function Preview() {
       setPopUp({
         state: true,
         status: "success",
-        message: `Order placed successfully! Order Number: ${response.data.order.orderNumber}. We will confirm your order within 24 hours.`,
+        message: `Order placed successfully! Order Number: ${response.order.orderNumber}. We will confirm your order within 24 hours.`,
       });
+      setTimeout(() => {
+        <Navigate to={"/my-orders"} />;
+      }, 2000);
     } catch (error) {
       setIsLoading(false);
       console.error("Error placing order:", error);
@@ -338,6 +388,29 @@ export default function Preview() {
     }
     return product.discountedPrice > 0;
   };
+  // inside Preview component
+
+  const handleWhatsAppOrder = () => {
+    const phoneNumber = "+94773398946"; // your WhatsApp number with country code
+    const variationText = selectedVariation
+      ? `Variation: ${selectedVariation.displayName}\n`
+      : "";
+
+    const message = `
+Hello, I would like to order:
+
+Product: ${product.name}
+${variationText}Quantity: ${quantity}
+Price per unit: Rs. ${currentPrice.toLocaleString()}
+Subtotal: Rs. ${totalPrice.toLocaleString()}
+Delivery Fee: ${deliveryFee === 0 ? "FREE" : `Rs. ${deliveryFee}`}
+Total: Rs. ${finalTotal.toLocaleString()} `;
+
+    const url = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(
+      message
+    )}`;
+    window.open(url, "_blank");
+  };
 
   if (isLoading && !product) {
     return (
@@ -366,11 +439,108 @@ export default function Preview() {
   return (
     <>
       <style>{`
+      /* Product Gallery Styles */
+.product-preview-gallery {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background: #ffffff;
+
+}
+
+.main-image-container {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  background: #ffffff;
+  border: 1px solid #e5e5e5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  position: relative;
+}
+
+.main-product-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background: #ffffff;
+}
+
+.placeholder-image {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  background: #f9f9f9;
+  color: #999;
+  font-size: 14px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.thumbnail-gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+  gap: 8px;
+  width: 100%;
+}
+
+.thumbnail-btn {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  padding: 4px;
+  background: #ffffff;
+  border: 2px solid #f0f0f0;
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+  overflow: hidden;
+}
+
+.thumbnail-btn:hover {
+  border-color: #d0d0d0;
+}
+
+.thumbnail-btn.active {
+  border-color: #000000;
+}
+
+.thumbnail-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .product-preview-gallery {
+    padding: 8px;
+  }
+  
+  .thumbnail-gallery {
+    grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+    gap: 6px;
+  }
+  
+  .thumbnail-btn {
+    padding: 3px;
+  }
+}
+
+@media (max-width: 480px) {
+  .thumbnail-gallery {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
         .purchase-container {
           min-height: 100vh;
           background-color: #ffffff;
           font-family: Manrope;
           font-weight: 600;
+          padding-bottom: 2rem
+
         }
 
         .logo {
@@ -461,17 +631,30 @@ export default function Preview() {
           margin-bottom: 60px;
         }
 
-        .product-images {
-          display: grid;
-          gap: 20px;
-        }
+       .product-images {
+  display: grid;
+  gap: 12px;
+  position: relative;
+}
 
-        .main-image {
-          width: 100%;
-          aspect-ratio: 1;
-          object-fit: cover;
-          border: 1px solid #e5e5e5;
-        }
+.product-images .sub-images{
+position: absolute;
+display: flex;
+  border: 1px solid #e5e5e5;
+bottom:4px;
+left: 4px
+}
+
+.product-images .sub-images img{
+height: 100px;
+flex:1;}
+.product-images .main-image {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  border: 1px solid #e5e5e5;
+  border-radius: 6px;
+}
 
         .product-details {
           padding: 20px 0;
@@ -480,19 +663,18 @@ export default function Preview() {
         .product-title {
           font-size: 32px;
           font-weight: 400;
-          margin-bottom: 8px;
         }
 
         .product-subtitle {
           font-size: 14px;
           color: #666;
-          margin-bottom: 24px;
+          margin-bottom: 14px;
         }
 
-        .product-price {
+        .purchase-container .product-price {
           font-size: 24px;
           font-weight: 400;
-          margin-bottom: 32px;
+          margin-bottom: 12px;
           display: flex;
           align-items: center;
           gap: 12px;
@@ -512,7 +694,7 @@ export default function Preview() {
 
         .product-description {
           color: #666;
-          margin-bottom: 32px;
+          margin-bottom: 14px;
           line-height: 1.8;
         }
 
@@ -520,9 +702,7 @@ export default function Preview() {
           margin-bottom: 40px;
         }
 
-        .option-group {
-          margin-bottom: 24px;
-        }
+       
 
         .option-label {
           font-size: 12px;
@@ -534,6 +714,7 @@ export default function Preview() {
 
         .variation-options {
           display: grid;
+          grid-template-columns: 1fr 1fr;
           gap: 12px;
         }
 
@@ -622,14 +803,11 @@ export default function Preview() {
           border-radius: 6px;
           cursor: pointer;
           transition: all 0.2s ease;
-          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
           min-height: 38px;
         }
 
         .product-preview-action-btns button:hover {
-          background: #fafafa;
           border-color: #d0d0d0;
-          box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
           transform: translateY(-1px);
         }
 
@@ -641,7 +819,6 @@ export default function Preview() {
         .product-preview-action-btns button:focus {
           outline: none;
           border-color: #a0a0a0;
-          box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.05);
         }
 
         .product-preview-action-btns button:disabled {
@@ -652,7 +829,6 @@ export default function Preview() {
 
         .product-preview-action-btns button:disabled:hover {
           transform: none !important;
-          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04) !important;
         }
 
         .product-preview-action-btns button svg {
@@ -670,7 +846,10 @@ export default function Preview() {
           .product-preview-action-btns {
             gap: 6px;
           }
-          
+          h2.form-title{
+          font-size: 22px;
+          font-weight: 500;
+          }
           .product-preview-action-btns button {
             padding: 6px 12px;
             font-size: 0.8rem;
@@ -723,7 +902,7 @@ export default function Preview() {
           outline: none;
           transition: border-color 0.3s ease;
         }
-
+      
         .form-input:focus {
           border-bottom-color: black;
         }
@@ -732,11 +911,14 @@ export default function Preview() {
           border-bottom-color: #dc2626;
         }
 
+        .purchase-container .order-summary{
+        padding: 32px 10px;
+        }
         .form-label {
           position: absolute;
           left: 0;
           top: 16px;
-          font-size: 14px;
+          font-size: 12px;
           color: #999;
           pointer-events: none;
           transition: all 0.3s ease;
@@ -875,6 +1057,11 @@ export default function Preview() {
           color: #22c55e;
         }
 
+        @media (max-width: 968px) {
+        .product-section{
+            gap: 20px;
+        }
+        }
         @media (max-width: 768px) {
           .product-section {
             grid-template-columns: 1fr;
@@ -894,10 +1081,95 @@ export default function Preview() {
             gap: 12px;
           }
         }
+          .whatsapp-order-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 16px 24px;
+  background: #25D366;
+  color: #ffffff;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 500;
+  font-family: inherit;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  min-height: 56px;
+}
+
+.whatsapp-order-btn:hover {
+  background: #20c157;
+  transform: translateY(-1px);
+}
+
+.whatsapp-order-btn:active {
+  background: #1ea952;
+  transform: translateY(0);
+}
+
+.whatsapp-order-btn:focus {
+  outline: 2px solid #25D366;
+  outline-offset: 2px;
+}
+
+.whatsapp-order-btn img {
+  width: 34px;
+  height: 34px;
+  object-fit: contain;
+}
+
+.whatsapp-order-btn:disabled {
+  background: #cccccc;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.whatsapp-order-btn:disabled:hover {
+  background: #cccccc;
+  transform: none;
+}
+  .purchase-buttons{
+  display:flex;
+  gap: 10px;
+  }
+  .purchase-buttons > *{
+  padding: 8px;
+  }
+  .purchase-buttons button{
+  text-transform: uppercase;
+  flex:1;}
+
+/* Mobile responsive */
+@media (max-width: 480px) {
+.purchase-buttons button{
+font-size: 12.5px !important;
+}
+  .whatsapp-order-btn {
+    padding: 14px 20px;
+    font-size: 15px;
+    min-height: 52px;
+  }
+  
+  .whatsapp-order-btn img {
+    width: 20px;
+    height: 20px;
+  }
+}
 
         @media(max-width: 424px){
           .progress-step{
             font-size: 10px;
+          }
+
+          .purchase-buttons{
+          flex-direction: column
+          }
+          .purchase-buttons button{
+            min-height: 52px;
+            font-size: 15px !important;
+            padding: 10px !important;
           }
         }
       `}</style>
@@ -923,12 +1195,50 @@ export default function Preview() {
 
           {step === 1 && (
             <div className="product-section">
-              <div className="product-images">
+              {/* <div className="product-images">
                 <img
                   src={getCurrentImage()}
                   alt={product.name}
                   className="main-image"
                 />
+                <div className="sub-images">
+                  {product.mainImages.slice(1).map((image, key) => (
+                    <img src={image} key={key} alt={`main-${key}`} />
+                  ))}
+                </div>
+              </div> */}
+              <div className="product-preview-gallery">
+                {/* 1. Main Display Image */}
+                <div className="main-image-container">
+                  {mainImage ? (
+                    <img
+                      src={mainImage}
+                      alt={product.name}
+                      className="main-product-image"
+                    />
+                  ) : (
+                    <div className="placeholder-image">No Image Available</div>
+                  )}
+                </div>
+
+                {/* 2. Thumbnail Gallery */}
+                <div className="thumbnail-gallery">
+                  {allImages.map((imageUrl, index) => (
+                    <button
+                      key={index}
+                      className={`thumbnail-btn ${
+                        mainImage === imageUrl ? "active" : ""
+                      }`}
+                      onClick={() => handleImageSwitch(imageUrl)}
+                    >
+                      <img
+                        src={imageUrl}
+                        alt={`${product.name} thumbnail ${index + 1}`}
+                        className="thumbnail-image"
+                      />
+                    </button>
+                  ))}
+                </div>
               </div>
 
               <div className="product-details">
@@ -1010,7 +1320,40 @@ export default function Preview() {
                       </div>
                     </div>
                   )}
-
+                  <div className="product-preview-action-btns">
+                    <button
+                      className="btn btn-secondary"
+                      onClick={handleAddToCart}
+                      disabled={isAddingToCart || isAddingToWishlist}
+                    >
+                      {isAddingToCart ? (
+                        <>
+                          <div className="spinner-small"></div>
+                          Adding...
+                        </>
+                      ) : (
+                        <>
+                          Add to Cart <Handbag />
+                        </>
+                      )}
+                    </button>
+                    <button
+                      className="btn btn-secondary"
+                      onClick={handleAddToWishlist}
+                      disabled={isAddingToCart || isAddingToWishlist}
+                    >
+                      {isAddingToWishlist ? (
+                        <>
+                          <div className="spinner-small"></div>
+                          Adding...
+                        </>
+                      ) : (
+                        <>
+                          Add to Wishlist <Heart />
+                        </>
+                      )}
+                    </button>
+                  </div>
                   <div className="option-group">
                     <label className="option-label">QUANTITY</label>
                     <div className="quantity-selector">
@@ -1040,55 +1383,29 @@ export default function Preview() {
                   </div>
                 </div>
 
-                <div className="product-preview-action-btns">
+                <div className="purchase-buttons">
                   <button
-                    className="btn btn-secondary"
-                    onClick={handleAddToCart}
-                    disabled={isAddingToCart || isAddingToWishlist}
+                    className="btn btn-primary"
+                    style={{ borderRadius: "0" }}
+                    onClick={handleProceedToShipping}
+                    disabled={isLoading}
                   >
-                    {isAddingToCart ? (
-                      <>
-                        <div className="spinner-small"></div>
-                        Adding...
-                      </>
+                    {isLoading ? (
+                      <div className="loading">
+                        <div className="spinner"></div>
+                        PROCESSING...
+                      </div>
                     ) : (
-                      <>
-                        Add to Cart <Handbag />
-                      </>
+                      "BUY IT NOW"
                     )}
                   </button>
                   <button
-                    className="btn btn-secondary"
-                    onClick={handleAddToWishlist}
-                    disabled={isAddingToCart || isAddingToWishlist}
+                    className="whatsapp-order-btn"
+                    onClick={handleWhatsAppOrder}
                   >
-                    {isAddingToWishlist ? (
-                      <>
-                        <div className="spinner-small"></div>
-                        Adding...
-                      </>
-                    ) : (
-                      <>
-                        Add to Wishlist <Heart />
-                      </>
-                    )}
+                    Order on WhatsApp
                   </button>
                 </div>
-
-                <button
-                  className="btn btn-primary"
-                  onClick={handleProceedToShipping}
-                  disabled={isLoading}
-                >
-                  {isLoading ? (
-                    <div className="loading">
-                      <div className="spinner"></div>
-                      PROCESSING...
-                    </div>
-                  ) : (
-                    "PROCEED TO CHECKOUT"
-                  )}
-                </button>
               </div>
             </div>
           )}

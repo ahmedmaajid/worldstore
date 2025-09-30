@@ -7,11 +7,9 @@ export default function Footer() {
         <div className="footer__brand">World Store</div>
 
         <nav className="footer__links">
-          <a href="/about">About</a>
-          <a href="/faq">FAQ</a>
-          <a href="/contact">Contact</a>
-          <a href="/privacy">Privacy Policy</a>
-          <a href="/terms">Terms & Conditions</a>
+          <a href="https://www.instagram.com/framewallio">
+            Developed and Designed By Framewall
+          </a>
         </nav>
 
         <p className="footer__copy">

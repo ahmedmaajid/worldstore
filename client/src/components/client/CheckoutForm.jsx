@@ -3,6 +3,7 @@ import { ChevronLeft } from "lucide-react";
 import React, { useState } from "react";
 import { createOrder } from "../../api/order";
 import PopMessage from "./PopMessage";
+import { Spinner } from "../../components/client/Spinner";
 
 export default function CheckoutForm({
   setConfirmationData,
@@ -17,6 +18,7 @@ export default function CheckoutForm({
   onOrderPlaced,
 }) {
   const [popup, setPopup] = useState(null);
+  const [showSpinner, setShowSpinner] = useState(false);
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -34,6 +36,7 @@ export default function CheckoutForm({
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setShowSpinner(true);
     try {
       const fullData = {
         formData,
@@ -50,10 +53,12 @@ export default function CheckoutForm({
       setConfirmationData(data.order);
 
       setPopup({ status: "success", message: "Order placed successfully!" });
+      setShowSpinner(false);
       setTimeout(() => {
         onOrderPlaced(data.order);
       }, 3000);
     } catch (err) {
+      setShowSpinner(false);
       console.error(err);
       const message =
         err.response?.data?.message || "Something went wrong. Try again!";
@@ -63,6 +68,7 @@ export default function CheckoutForm({
 
   return (
     <div className="checkout-page">
+      {showSpinner && <Spinner />}
       {popup && (
         <PopMessage
           status={popup.status}

@@ -226,9 +226,6 @@ export default function Login() {
             )}
 
             <div className="footer-links">
-              <a href="#" className="footer-link">
-                FORGOT PASSWORD?
-              </a>
               <div className="footer-row">
                 <span>NEW TO WORLD STORE?</span>
                 <Link to="/account/signup">CREATE ACCOUNT</Link>
@@ -237,7 +234,10 @@ export default function Login() {
           </div>
 
           <div className="additional-info">
-            <p>EXCLUSIVE ACCESS TO COLLECTIONS & EVENTS</p>
+            <p style={{ textTransform: "uppercase" }}>
+              Log in to manage your orders, track deliveries, save your cart,
+              and checkout faster.
+            </p>
           </div>
         </div>
       </div>

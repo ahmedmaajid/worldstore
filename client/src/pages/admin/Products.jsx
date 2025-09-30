@@ -243,7 +243,7 @@ export default function LuxuryProductManager() {
     // Fix: Change formData.append to data.append
     data.append("variations", JSON.stringify(createdCombos));
 
-    data.append("variations", JSON.stringify(formData.combos));
+    // data.append("variations", JSON.stringify(formData.combos));
     data.append("variationTypes", JSON.stringify(variationTypes));
 
     try {

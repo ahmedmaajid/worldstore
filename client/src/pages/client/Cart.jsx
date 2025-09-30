@@ -260,24 +260,32 @@ export const Cart = () => {
   // Calculate total
   const total = subtotal - promoDiscount + calculatedShipping;
 
+  // useEffect(() => {
+  //   console.log("total:", total, "appliedPromo:", appliedPromo);
+  //   if (total <= 0) {
+  //     setPromoCode(null);
+  //     setAppliedPromo(null);
+  //     console.log("Setting popup error");
+  //     setPopUp({
+  //       state: true,
+  //       status: "error",
+  //       message: "You cannot use this coupon on this product.",
+  //     });
+  //   }
+  // }, [total, appliedPromo]);
+
   useEffect(() => {
-    if (total < 0 || total === 0) {
-      console.log("Minus");
+    if (appliedPromo && total <= 0) {
+      setPromoCode(null);
+      setAppliedPromo(null);
       setPopUp({
         state: true,
         status: "error",
         message: "You cannot use this coupon on this product.",
       });
-      setPromoCode(null);
-      setAppliedPromo(null);
-    } else {
-      setPopUp({
-        state: false,
-        status: null,
-        message: "",
-      });
     }
   }, [total, appliedPromo]);
+
   if (isLoading) {
     return (
       <div className="loading-container">

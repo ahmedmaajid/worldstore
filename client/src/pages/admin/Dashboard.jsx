@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   TrendingUp,
   TrendingDown,
@@ -9,119 +9,100 @@ import {
   ArrowUpRight,
 } from "lucide-react";
 import { Link } from "react-router-dom";
+import { getDashboardData } from "../../api/admin";
 
 export default function Dashboard() {
+  const [dashboardData, setDashboardData] = useState({
+    stats: { revenue: 0, users: 0, orders: 0 },
+    recentOrders: [],
+    topProducts: [],
+  });
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        setIsLoading(true);
+        const data = await getDashboardData();
+        console.log("Dashboard Data:", data);
+        setDashboardData(data);
+      } catch (error) {
+        console.error("Failed to fetch dashboard data:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    fetchData();
+  }, []);
+
+  // Calculate conversion rate (orders/users * 100)
+  const conversionRate =
+    dashboardData.stats.users > 0
+      ? (
+          (dashboardData.stats.orders / dashboardData.stats.users) *
+          100
+        ).toFixed(2)
+      : 0;
+
   const stats = [
     {
-      title: "Total price",
-      value: "$124,856",
-      change: "+12.5%",
+      title: "Total Revenue",
+      value: `LKR ${dashboardData.stats.revenue.toLocaleString()}`,
+      change: "+12.5%", // You can calculate this based on previous period data
       trend: "up",
       period: "vs last month",
     },
     {
       title: "Active Users",
-      value: "8,249",
+      value: dashboardData.stats.users.toLocaleString(),
       change: "+8.2%",
       trend: "up",
       period: "vs last month",
     },
     {
-      title: "Orders",
-      value: "1,429",
+      title: "Total Orders",
+      value: dashboardData.stats.orders.toLocaleString(),
       change: "-2.1%",
       trend: "down",
       period: "vs last month",
     },
     {
-      title: "Conversion",
-      value: "3.24%",
+      title: "Conversion Rate",
+      value: `${conversionRate}%`,
       change: "+0.8%",
       trend: "up",
       period: "vs last month",
     },
   ];
 
-  const recentOrders = [
-    {
-      id: "#LX001",
-      customer: "Sarah Chen",
-      product: "Premium Handbag",
-      amount: "$2,450",
-      status: "Completed",
-    },
-    {
-      id: "#LX002",
-      customer: "Michael Ross",
-      product: "Leather Wallet",
-      amount: "$890",
-      status: "Processing",
-    },
-    {
-      id: "#LX003",
-      customer: "Emma Stone",
-      product: "Silk Scarf",
-      amount: "$620",
-      status: "Shipped",
-    },
-    {
-      id: "#LX004",
-      customer: "James Wilson",
-      product: "Watch Collection",
-      amount: "$4,200",
-      status: "Completed",
-    },
-    {
-      id: "#LX005",
-      customer: "Isabella Garcia",
-      product: "Jewelry Set",
-      amount: "$1,850",
-      status: "Processing",
-    },
-  ];
+  const getOrderStatus = (status) => {
+    const statusMap = {
+      pending: "Processing",
+      processing: "Processing",
+      shipped: "Shipped",
+      delivered: "Completed",
+      cancelled: "Cancelled",
+    };
+    return statusMap[status] || status;
+  };
 
-  const topProducts = [
-    {
-      name: "Premium Leather Handbag",
-      sales: 89,
-      description:
-        "Lorem ipsum dolor sit amet consectetur adipisicing elit. Nostrum dolor doloremque adipisci recusandae beatae in, facere deleniti perferendis cumque quasi dicta",
-      price: "$21,780",
-      trend: "up",
-    },
-    {
-      name: "Silk Evening Dress",
-      description:
-        "Lorem ipsum dolor sit amet consectetur adipisicing elit. Nostrum dolor doloremque adipisci recusandae beatae in, facere deleniti perferendis cumque quasi dicta",
-      sales: 67,
-      price: "$18,900",
-      trend: "up",
-    },
-    {
-      name: "Gold Watch Collection",
-      sales: 45,
-      description:
-        "Lorem ipsum dolor sit amet consectetur adipisicing elit. Nostrum dolor doloremque adipisci recusandae beatae in, facere deleniti perferendis cumque quasi dicta",
-      price: "$31,500",
-      trend: "down",
-    },
-    {
-      name: "Diamond Jewelry Set",
-      description:
-        "Lorem ipsum dolor sit amet consectetur adipisicing elit. Nostrum dolor doloremque adipisci recusandae beatae in, facere deleniti perferendis cumque quasi dicta",
-      sales: 34,
-      price: "$28,200",
-      trend: "up",
-    },
-    {
-      name: "Cashmere Coat",
-      sales: 29,
-      description:
-        "Lorem ipsum dolor sit amet consectetur adipisicing elit. Nostrum dolor doloremque adipisci recusandae beatae in, facere deleniti perferendis cumque quasi dicta",
-      price: "$14,500",
-      trend: "up",
-    },
-  ];
+  const formatDate = (dateString) => {
+    return new Date(dateString).toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+    });
+  };
+
+  if (isLoading) {
+    return (
+      <div className="dashboard">
+        <div className="loading-state">
+          <div className="spinner"></div>
+          <p>Loading dashboard data...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="dashboard">
@@ -134,8 +115,9 @@ export default function Dashboard() {
           </p>
         </div>
         <div className="header-actions">
-          <button className="dashboard-btn-secondary">Export</button>
-          <button className="dashboard-btn-primary">Add Product</button>
+          <Link to="/admin/products/" className="dashboard-btn-primary">
+            Add Product
+          </Link>
         </div>
       </div>
 
@@ -165,57 +147,141 @@ export default function Dashboard() {
       {/* Content Grid */}
       <div className="content-grid">
         {/* Recent Orders */}
-        {/* Recent Orders as cards */}
         <div className="content-card">
           <div className="card-header">
             <h2 className="card-title">Recent Orders</h2>
-            <button className="view-all">
+            <Link to="/admin/orders" className="view-all">
               View all <ArrowUpRight size={14} />
-            </button>
+            </Link>
           </div>
           <div className="orders-cards">
-            {recentOrders.map((order, index) => (
-              <div key={index} className="order-card">
-                <div className="order-info">
-                  <span className="order-id">{order.id}</span>
-                  <span className="customer-name">{order.customer}</span>
-                  <span className="product-name">{order.product}</span>
+            {dashboardData.recentOrders.length > 0 ? (
+              dashboardData.recentOrders.map((order, index) => (
+                <div key={order._id || index} className="order-card">
+                  <div className="order-info">
+                    <span className="order-id">#{order.orderNumber}</span>
+                    <span className="customer-name">
+                      {order.shippingAddress
+                        ? `${order.shippingAddress.firstName || ""} ${
+                            order.shippingAddress.lastName || ""
+                          }`
+                        : "(Guest)"}
+                    </span>
+
+                    <span className="product-name">
+                      {order.items?.[0]?.name || "Multiple Items"}
+                      {order.items?.length > 1 &&
+                        ` +${order.items.length - 1} more`}
+                    </span>
+                  </div>
+                  <div className="order-stats">
+                    <span className="amount">
+                      LKR {order.total.toLocaleString()}
+                    </span>
+                    <span className={`status ${order.status.toLowerCase()}`}>
+                      {getOrderStatus(order.status)}
+                    </span>
+                  </div>
                 </div>
-                <div className="order-stats">
-                  <span className="amount">{order.amount}</span>
-                  <span className={`status ${order.status.toLowerCase()}`}>
-                    {order.status}
-                  </span>
-                </div>
+              ))
+            ) : (
+              <div className="empty-state">
+                <p>No recent orders found</p>
               </div>
-            ))}
+            )}
           </div>
         </div>
 
         {/* Top Products */}
         <div className="content-card">
           <div className="card-header">
-            <h2 className="card-title">Recent Products</h2>
+            <h2 className="card-title">Top Products by Sales</h2>
           </div>
           <div className="products-list">
-            {topProducts.map((product, index) => (
-              <div key={index} className="product-item">
-                <div className="product-info">
-                  <Link to="#" className="product-name">
-                    {product.name}
-                  </Link>
-                  <p className="product-description">
-                    {product.description} units sold
-                  </p>
+            {dashboardData.topProducts.length > 0 ? (
+              dashboardData.topProducts.map((product, index) => (
+                <div key={product._id || index} className="product-item">
+                  <div className="product-info">
+                    <div>{product.name}</div>
+                    <p className="product-description">
+                      {product.sales} units sold • Total revenue: LKR
+                      {product.revenue.toLocaleString()}
+                    </p>
+                  </div>
+                  <div className="product-stats">
+                    <span className="product-sales">{product.sales} sold</span>
+                    <div className={`product-trend up`}>
+                      <TrendingUp size={14} />
+                    </div>
+                  </div>
                 </div>
-                <div className="product-stats">
-                  <span className="product-price">{product.price}</span>
-                </div>
+              ))
+            ) : (
+              <div className="empty-state">
+                <p>No product sales data available</p>
               </div>
-            ))}
+            )}
           </div>
         </div>
       </div>
+
+      <style jsx>{`
+        .loading-state {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          min-height: 400px;
+          color: #666;
+        }
+
+        .spinner {
+          width: 32px;
+          height: 32px;
+          border: 2px solid #e5e5e5;
+          border-top: 2px solid #000;
+          border-radius: 50%;
+          animation: spin 1s linear infinite;
+          margin-bottom: 16px;
+        }
+
+        @keyframes spin {
+          0% {
+            transform: rotate(0deg);
+          }
+          100% {
+            transform: rotate(360deg);
+          }
+        }
+
+        .empty-state {
+          text-align: center;
+          padding: 40px 20px;
+          color: #666;
+        }
+
+        .product-stats {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
+
+        .product-sales {
+          font-size: 14px;
+          color: #666;
+        }
+
+        .product-trend {
+          color: #10b981;
+        }
+
+        .dashboard-btn-primary {
+          text-decoration: none;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+        }
+      `}</style>
     </div>
   );
 }

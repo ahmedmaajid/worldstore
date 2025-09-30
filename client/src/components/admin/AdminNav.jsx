@@ -26,7 +26,6 @@ export const AdminNav = () => {
     { icon: Boxes, label: "Categories", link: "/admin/categories" },
     { icon: Users, label: "Customers", link: "/admin/customers" },
     { icon: Bell, label: "Orders", link: "/admin/orders" },
-    { icon: Settings, label: "Settings" },
   ];
 
   return (

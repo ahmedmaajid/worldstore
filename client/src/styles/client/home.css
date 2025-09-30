@@ -136,13 +136,18 @@ section {
   flex: 0 0 auto; /* prevent shrinking */
   scroll-snap-align: start;
 }
+.new-arrival-product-card .product-name {
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
 
 /* Products Grid */
 .new-arrival-products {
   margin-top: 3rem;
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: 10px;
+  gap: 20px;
   overflow-x: auto; /* horizontal scroll for wide cards */
   padding-bottom: 1rem;
 }
@@ -543,7 +548,7 @@ h2.customized .inline-avatar {
   justify-content: space-between;
   background-color: white;
   border-top: 1px solid #eee;
-  z-index: 2;
+  z-index: 1000;
   position: fixed;
   bottom: 0;
   width: 100%;

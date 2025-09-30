@@ -114,7 +114,6 @@
   align-items: center;
   justify-content: center;
   gap: 0.75rem;
-  margin: 0 0 2rem;
   font-size: 0.875rem;
 }
 
@@ -317,6 +316,7 @@
   height: calc(100vh - 200px);
   overflow-y: auto;
   flex-shrink: 0;
+  padding-bottom: 1.5rem;
   transition: var(--shop-transition);
 }
 
@@ -570,6 +570,7 @@
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
   gap: 1rem;
+  padding-bottom: 40px;
 }
 
 /* Product Cards */
@@ -1219,7 +1220,7 @@
   }
 
   .shop-product-price {
-    font-size: 0.9rem;
+    font-size: 1rem;
   }
 
   .original {
@@ -1259,9 +1260,6 @@
     height: 280px;
     border: 1px solid #f5f5f5;
   }
-  .shop-product-stock {
-    display: none;
-  }
 
   .shop-product-price {
     font-size: 0.8rem;
@@ -1278,7 +1276,7 @@
   }
 
   .shop-product-price {
-    justify-content: space-between;
+    /* justify-content: space-between; */
   }
   .shop-product-price .original {
     font-size: 12px;
