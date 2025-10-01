@@ -14,10 +14,11 @@ import cookieParser from "cookie-parser";
 
 const app = express();
 
-// Middlewares
 app.use(cors({
-    origin: "https://worldstore-client.vercel.app", // your React app
+    origin: "https://worldstore-client.vercel.app", // your live frontend
     credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE"], // allow these HTTP methods
+    allowedHeaders: ["Content-Type", "Authorization"], // allow these headers
 }));
 app.use(express.json());
 app.use(morgan("dev"));
