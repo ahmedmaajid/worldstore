@@ -16,7 +16,7 @@ const app = express();
 
 // Middlewares
 app.use(cors({
-    origin: "http://localhost:5173", // your React app
+    origin: "https://worldstore-client.vercel.app", // your React app
     credentials: true,
 }));
 app.use(express.json());
