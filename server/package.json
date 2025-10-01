@@ -15,20 +15,19 @@
   "dependencies": {
     "cloudinary": "^2.7.0",
     "cookie-parser": "^1.4.7",
-    "epxress": "^0.0.1-security",
     "express": "^5.1.0",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.18.1",
     "multer": "^2.0.2",
     "nodemailer": "^7.0.6",
-    "slugify": "^1.6.6"
-  },
-  "devDependencies": {
+    "slugify": "^1.6.6",
+    "dotenv": "^17.2.3",
     "bcryptjs": "^3.0.2",
     "cors": "^2.8.5",
-    "dotenv": "^17.2.2",
+    "morgan": "^1.10.1"
+  },
+  "devDependencies": {
     "install": "^0.13.0",
-    "morgan": "^1.10.1",
     "nodemon": "^3.1.10",
     "npm": "^11.6.0"
   }
