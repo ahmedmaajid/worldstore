@@ -111,6 +111,7 @@
 
 .shop-breadcrumb {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: center;
   gap: 0.75rem;
@@ -438,7 +439,10 @@
 
 .shop-category-toggle.selected span {
   font-weight: 500;
-  color: #000;
+  color: black;
+  padding: 10px;
+  flex: 1;
+  background: #f9f9f9;
 }
 
 .shop-subcategory-item:hover {
@@ -1660,8 +1664,15 @@
     font-size: 2.2rem;
   }
 
+  .luxury-subcategories-showcase {
+    width: 100%;
+  }
+
   .luxury-subcategories-grid {
     gap: 2rem;
+    flex-wrap: nowrap;
+    overflow: auto;
+    justify-content: start;
   }
 
   .luxury-subcat-image {
@@ -1677,6 +1688,10 @@
 @media (max-width: 480px) {
   .shop-header-section {
     padding: 2.5rem 0;
+  }
+
+  .shop-header-content {
+    padding: 0 10px !important;
   }
 
   .shop-title-area {

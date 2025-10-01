@@ -9,9 +9,10 @@ export const MiddleBanner = () => {
         <div className="banner-text-overlay">
           <h1>World Store</h1>
           <p>
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Eaque esse
-            labore officiis maxime enim iusto quasi expedita impeditest,
-            laudantium eosaccusantium temporibus,
+            World Store is a dynamic shop with a wide range of products. From
+            fashion to beauty, electronics, and home needs — everything in one
+            place for your lifestyle. Easy, fast, and trusted shopping for
+            everyone.
           </p>
         </div>
       </div>

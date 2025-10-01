@@ -264,6 +264,7 @@ const styles = {
     width: "100%",
     aspectRatio: "4/5",
     objectFit: "contain",
+    maxHeight: "200px",
     display: "block",
   },
   productInfo: {

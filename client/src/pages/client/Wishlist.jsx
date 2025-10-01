@@ -207,7 +207,7 @@ const WishlistPage = () => {
                 <br />
                 Create your personal curation of luxury items.
               </p>
-              <a href="/products" className="wishlist-empty-btn">
+              <a href="/shop" className="wishlist-empty-btn">
                 Explore Collection
               </a>
             </div>

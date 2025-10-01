@@ -558,6 +558,7 @@
   .main-content.cart {
     padding: 24px 16px;
     gap: 32px;
+    padding-bottom: 4rem;
   }
 
   .cart-item {

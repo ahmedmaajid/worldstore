@@ -33,7 +33,7 @@ export default function Home({ openSidebar }) {
           stretching your budget{" "}
         </h2> */}
         <a
-          href="https://wa.me/+94773398946?text=Hello!%20I’m%20interested%20in%20your%20products.%20Could%20you%20please%20help%20me%20with%20more%20details?"
+          href="https://wa.me/+94767525148?text=Hello!%20I’m%20interested%20in%20your%20products.%20Could%20you%20please%20help%20me%20with%20more%20details?"
           className="contact-whatsapp"
           target="_blank"
           rel="noopener noreferrer"

@@ -391,7 +391,7 @@ export default function Preview() {
   // inside Preview component
 
   const handleWhatsAppOrder = () => {
-    const phoneNumber = "+94773398946"; // your WhatsApp number with country code
+    const phoneNumber = "+94767525148";
     const variationText = selectedVariation
       ? `Variation: ${selectedVariation.displayName}\n`
       : "";
