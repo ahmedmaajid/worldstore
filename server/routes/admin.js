@@ -77,25 +77,25 @@ adminRoutes.delete("/variation/:id", deleteVariation)
 
 
 // For Creating an initial admin user
-// adminRoutes.get("/create-admin", async (req, res) => {
-//     try {
-//         const password = "admin123"; // strong one in real life
+adminRoutes.get("/create-admin", async (req, res) => {
+    try {
+        const password = "admin123"; // strong one in real life
 
-//         const adminUser = new User({
-//             firstName: "Zainul",
-//             lastName: "Hamthy",
-//             email: "hamthyzainul4@gmail.com",
-//             password: password,
-//             isAdmin: true,
-//         });
+        const adminUser = new User({
+            firstName: "Zainul",
+            lastName: "Hamthy",
+            email: "hamthyzainul4@gmail.com",
+            password: password,
+            isAdmin: true,
+        });
 
-//         await adminUser.save();
-//         res.json({ message: "Admin created", admin: adminUser });
-//     } catch (err) {
-//         console.error(err);
-//         res.status(500).json({ message: "Error creating admin" });
-//     }
-// });
+        await adminUser.save();
+        res.json({ message: "Admin created", admin: adminUser });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: "Error creating admin" });
+    }
+});
 
 
 adminRoutes.post("/add-shipping-details", addShippingDetails)
