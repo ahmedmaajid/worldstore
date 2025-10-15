@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Navigate, resolvePath, useParams } from "react-router-dom";
+import { Navigate, resolvePath, useNavigate, useParams } from "react-router-dom";
 import { getProduct } from "../../api/products.js";
 import { Handbag, Heart } from "lucide-react";
 import PopMessage from "../../components/client/PopMessage";
@@ -117,15 +117,14 @@ export default function Preview() {
     }
     getCommerce();
   }, []);
+  const navigate = useNavigate()
 
   // Cart and Wishlist handlers
   const handleAddToCart = async () => {
     const checkingUser = await checkAuth();
     if (checkingUser === false)
-      return setShowPopMessage({
-        status: "warning",
-        message: "Please log in or create an account to add items to your cart",
-      });
+      return navigate("/account/login")
+      
 
     if (product.hasVariations && !selectedVariation) {
       setShowPopMessage({
@@ -185,11 +184,7 @@ export default function Preview() {
     // Check if user is logged in
     const isLoggedIn = await checkAuth();
     if (!isLoggedIn) {
-      return setShowPopMessage({
-        status: "error",
-        message:
-          "Please log in or create an account to add items to your wishlist",
-      });
+           return navigate("/account/login")
     }
 
     // Check variation selection
@@ -391,7 +386,7 @@ export default function Preview() {
   // inside Preview component
 
   const handleWhatsAppOrder = () => {
-    const phoneNumber = "+94767525148";
+    const phoneNumber = "+94784165740";
     const variationText = selectedVariation
       ? `Variation: ${selectedVariation.displayName}\n`
       : "";
@@ -414,10 +409,7 @@ Total: Rs. ${finalTotal.toLocaleString()} `;
 
   if (isLoading && !product) {
     return (
-      <div className="loading-container">
-        <div className="spinner-large"></div>
-        <p>LOADING PRODUCT...</p>
-      </div>
+      <Spinner message={"Loading product details.."}/>
     );
   }
 
