@@ -80,7 +80,149 @@ export const getCategoryData = async (req, res) => {
     }
 };
 
+export const getRandomSubCategories = async (req, res) => {
+    try {
+        const subCategories = await Category.aggregate([
+            // Only categories that have a parent (not top-level)
+            { $match: { parentId: { $ne: null } } },
 
+            // Lookup to check if they have any children
+            {
+                $lookup: {
+                    from: "categories",
+                    localField: "_id",
+                    foreignField: "parentId",
+                    as: "children"
+                }
+            },
+
+            // Keep only those with no children (leaf categories)
+            { $match: { "children": { $size: 0 } } },
+
+            // Randomly pick 10
+            { $sample: { size: 10 } },
+
+            // Recursively lookup to find parent(s)
+            {
+                $graphLookup: {
+                    from: "categories",
+                    startWith: "$parentId",
+                    connectFromField: "parentId",
+                    connectToField: "_id",
+                    as: "parents",
+                    depthField: "level"
+                }
+            },
+
+            // Sort parents by level (deepest to shallowest)
+            {
+                $addFields: {
+                    sortedParents: {
+                        $sortArray: {
+                            input: "$parents",
+                            sortBy: { level: -1 }
+                        }
+                    }
+                }
+            },
+
+            // Find immediate parent
+            {
+                $addFields: {
+                    immediateParent: {
+                        $arrayElemAt: [
+                            {
+                                $filter: {
+                                    input: "$parents",
+                                    as: "parent",
+                                    cond: { $eq: ["$$parent._id", "$parentId"] }
+                                }
+                            },
+                            0
+                        ]
+                    }
+                }
+            },
+
+            // Build the full slug path
+            {
+                $addFields: {
+                    fullSlugPath: {
+                        $cond: {
+                            if: { $gt: [{ $size: "$sortedParents" }, 0] },
+                            then: {
+                                $concat: [
+                                    {
+                                        $reduce: {
+                                            input: "$sortedParents.slug",
+                                            initialValue: "",
+                                            in: {
+                                                $concat: [
+                                                    "$$value",
+                                                    {
+                                                        $cond: [
+                                                            { $eq: ["$$value", ""] },
+                                                            "",
+                                                            "/"
+                                                        ]
+                                                    },
+                                                    "$$this"
+                                                ]
+                                            }
+                                        }
+                                    },
+                                    "/",
+                                    "$slug"
+                                ]
+                            },
+                            else: "$slug"
+                        }
+                    },
+                    parentName: "$immediateParent.name"
+                }
+            },
+
+            // Keep clean output
+            {
+                $project: {
+                    _id: 1,
+                    name: 1,
+                    slug: 1,
+                    fullSlugPath: 1,
+                    image: 1,
+                    parentName: 1,
+                    createdAt: 1
+                }
+            }
+        ]);
+
+        // Check for duplicate names and add parent prefix where needed
+        const nameCount = {};
+        subCategories.forEach(cat => {
+            nameCount[cat.name] = (nameCount[cat.name] || 0) + 1;
+        });
+
+        const result = subCategories.map(cat => {
+            if (nameCount[cat.name] > 1 && cat.parentName) {
+                return {
+                    ...cat,
+                    displayName: `${cat.parentName} - ${cat.name}`
+                };
+            }
+            return {
+                ...cat,
+                displayName: cat.name
+            };
+        });
+
+        res.status(200).json({ data: result });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({
+            error: error.message || "Something went wrong while fetching subcategories."
+        });
+    }
+};
 
 // export const getCategoryData = async (req, res) => {
 //     try {

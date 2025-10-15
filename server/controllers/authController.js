@@ -29,12 +29,16 @@ export const loginUser = async (req, res) => {
         const token = generateToken(payload);
 
         console.log("Token", token);
-        res.cookie("token", token, {
+        const cookieOptions = {
             httpOnly: true,
             secure: process.env.NODE_ENV === "production",
-            sameSite: "None",
+            // Browsers require `Secure` when SameSite=None. Use a dev-safe SameSite in non-production.
+            sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
             maxAge: 60 * 60 * 1000,
-        });
+            path: "/",
+        };
+
+        res.cookie("token", token, cookieOptions);
 
         // 🎯 Include isAdmin in the response body for immediate use by the frontend
         res.status(200).json({
@@ -57,12 +61,15 @@ export const registerUser = async (req, res) => {
 
         const payload = { id: newUser._id, email: newUser.email };
         const token = generateToken(payload);
-        res.cookie("token", token, {
+        const cookieOptions = {
             httpOnly: true,
             secure: process.env.NODE_ENV === "production",
-            sameSite: "None",
-            maxAge: 60 * 60 * 1000
-        });
+            sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
+            maxAge: 60 * 60 * 1000,
+            path: "/",
+        };
+
+        res.cookie("token", token, cookieOptions);
 
         res.status(201).json({ message: "User created successfully", status: "success", user: { firstName, lastName, email } });
     } catch (error) {
@@ -73,12 +80,15 @@ export const registerUser = async (req, res) => {
 
 export const logOut = async (req, res) => {
     try {
-        res.cookie("token", "", {
+        const cookieOptions = {
             httpOnly: true,
             secure: process.env.NODE_ENV === "production",
-            sameSite: "None",
-            expires: new Date(0)
-        });
+            sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
+            path: "/",
+            expires: new Date(0),
+        };
+
+        res.cookie("token", "", cookieOptions);
         res.json({ message: "Logged out successfully!" });
     } catch (error) {
         res.json({ message: error })

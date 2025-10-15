@@ -24,6 +24,11 @@ export const getCategories = async () => {
     return res.data;
 }
 
+export const getRandomSubCategories = async () => {
+    const res = await axios.get("/api/products/fetch-random-subcategories");
+    return res.data;
+}
+
 export const getCategoryDataBySlug = async (slug) => {
     const res = await axios.get("/api/products/get-category-data", {
         params: { slug },

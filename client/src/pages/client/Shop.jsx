@@ -1085,6 +1085,7 @@ export default function Shop() {
           // Main shop page - show all products
           const products = await getProducts();
           setShop_productsData(products);
+          console.log(products)
 
           // Reset category-specific states
           setCategoriesPath([]);

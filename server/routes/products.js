@@ -1,5 +1,5 @@
 import express from "express";
-import { getProducts, getProduct, getCategories, getCategoryData, getProductsByCategory, getProductsByCategoryIds, addToCart, addToWishlist, getCartItems, removeCartItem, getWishlistData, removeWishlistItem, addToCartFromWishlist } from "../controllers/productController.js";
+import { getProducts, getProduct, getCategories, getCategoryData, getProductsByCategory, getProductsByCategoryIds, addToCart, addToWishlist, getCartItems, removeCartItem, getWishlistData, removeWishlistItem, addToCartFromWishlist, getRandomSubCategories } from "../controllers/productController.js";
 import { protect } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
@@ -9,6 +9,7 @@ router.get("/get-products-by-category", getProductsByCategory)
 router.get("/get-product/:slug", getProduct);
 router.get("/fetch-categories", getCategories)
 router.get("/get-category-data", getCategoryData)
+router.get("/fetch-random-subcategories", getRandomSubCategories)
 router.post("/get-products-by-category-ids", getProductsByCategoryIds);
 
 

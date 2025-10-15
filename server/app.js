@@ -14,12 +14,26 @@ import cookieParser from "cookie-parser";
 
 const app = express();
 
-app.use(cors({
-    origin: "https://worldstore-client.vercel.app", // your live frontend
-    credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE"], // allow these HTTP methods
-    allowedHeaders: ["Content-Type", "Authorization"], // allow these headers
-}));
+// Allow both the production frontend and local dev frontend for CORS
+const allowedOrigins = [
+    "https://worldstore-client.vercel.app",
+    "http://localhost:5173", // Vite default dev server
+    "http://127.0.0.1:5173",
+];
+
+app.use(
+    cors({
+        origin: (origin, callback) => {
+            // allow requests with no origin (like mobile apps, curl, server-to-server)
+            if (!origin) return callback(null, true);
+            if (allowedOrigins.includes(origin)) return callback(null, true);
+            return callback(new Error("CORS policy: This origin is not allowed."));
+        },
+        credentials: true,
+        methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
+        allowedHeaders: ["Content-Type", "Authorization"],
+    })
+);
 app.use(express.json());
 app.use(morgan("dev"));
 app.use(cookieParser());

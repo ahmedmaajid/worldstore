@@ -12,6 +12,6 @@ export const loginUser = async ({ password, email }) => {
 }
 
 export const logOut = async () => {
-    const res = await axios.post("/api/auth/log-out", { withCredentials: true });
+    const res = await axios.post("/api/auth/log-out", {}, { withCredentials: true });
     return res.data;
 }

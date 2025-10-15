@@ -7,10 +7,15 @@ export default function SortDropdown({ sortOption, setSortOption }) {
     { value: "price-high-to-low", label: "Price: High to Low" },
     { value: "name-a-z", label: "Alphabetically: A-Z" },
     { value: "name-z-a", label: "Alphabetically: Z-A" },
-    { value: "old-new", label: "Item, Old to new" },
-    { value: "new-old", label: "Item, New to old" },
+    { value: "old-new", label: "Item: Old to new" },
+    { value: "new-old", label: "Item: New to old" },
   ];
 
+/**
+ * Handles selecting a sort option by setting the sortOption state
+ * and closing the dropdown
+ * @param {object} option - The selected sort option
+ */
   const handleSelect = (option) => {
     setSortOption(option.value);
     setOpen(false);

@@ -141,7 +141,7 @@ export default function Login() {
           <div className="login-card">
             <div className="card-header">
               <h2 className="card-title">
-                {step === 1 ? "MY WORLD STORE ACCOUNT" : "WELCOME BACK"}
+                {step === 1 ? "WORLD STORE ACCOUNT" : "WELCOME BACK"}
               </h2>
               <p className="card-subtitle">
                 {step === 1
