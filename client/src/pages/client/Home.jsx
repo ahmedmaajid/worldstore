@@ -9,17 +9,19 @@ import { StarsIcon } from "lucide-react";
 import FAQ from "../../components/client/FAQ";
 import Footer from "../../components/client/Footer";
 import RandomSubCategories from "../../components/client/RandomSubCategories";
+import Slideshow from "../../components/client/SlideShow";
 export default function Home({ openSidebar }) {
   return (
     <main>
       <div className="hero">
-        <div className="overlay"></div>
-        <img className="hero-logo" src="./World Store.jpg" alt="" />
+        {/* <div className="overlay"></div>
+        <img className="hero-logo" src="./World Store.jpg" alt="" /> */}
         {/* <img src="./World_Store-removebg-preview.png" alt="" /> */}
-        <div className="new">
+        <Slideshow/>
+        {/* <div className="new">
           <h2>World Store</h2>
           <p>This is a dynamic e-commerce platform</p>
-        </div>
+        </div> */}
 
         {/* <h2 className="customized">
           Shop good,{" "}

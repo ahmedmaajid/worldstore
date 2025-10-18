@@ -26,6 +26,7 @@ export default function ClientRoutes({
 
       <Routes>
         <Route path="/" element={<Home openSidebar={openSidebar} />} />
+        <Route path="/shop/filter/:filterType" element={<Shop />} />
         <Route path="/shop" element={<Shop />} />
         <Route path="/shop/category/*" element={<Shop />} />
         <Route path="/cart" element={<Cart />} />

@@ -4,12 +4,12 @@
   justify-content: space-between;
   align-items: center;
   font-family: "Jost", Questrial, Raleway !important;
-  background-color: #fff;
+  background-color: #ffffff;
   border-bottom: 1px solid #eee;
   position: sticky;
   top: 0;
   z-index: 100;
-  padding: 0 1rem;
+  padding: 15px 1rem 0;
 }
 
 .navbar > div:first-child {
@@ -104,15 +104,13 @@
   height: 100px;
 }
 
-@media (min-width: 425px) {
-  .icon-text span {
-    display: block;
-  }
-}
 @media (min-width: 480px) {
   .navbar-logo {
     font-size: 28px;
     letter-spacing: 3px;
+  }
+  .icon-text span {
+    display: block;
   }
 }
 @media (max-width: 425px) {
@@ -122,13 +120,6 @@
   .navbar-logo {
     font-size: 15px;
     letter-spacing: 1px;
-  }
-  .links {
-    padding: 0.5rem 0;
-  }
-  .links button {
-    font-size: 0.8rem;
-    padding: 0.4rem 1rem;
   }
 }
 .navbar-logo {
@@ -170,7 +161,9 @@
   .navbar-left span {
     display: none; /* hide text on small screens */
   }
-
+  .navbar {
+    padding: 1rem 1rem 0;
+  }
   .navbar-right button span,
   .navbar-right a {
     font-size: 14px;
@@ -338,13 +331,14 @@
   padding: 0.75rem 0;
   scrollbar-width: none;
   -ms-overflow-style: none;
+  z-index: 1001;
 }
 
 .links::-webkit-scrollbar {
   display: none;
 }
 
-.links button {
+.links a {
   flex-shrink: 0;
   padding: 0.45rem 1.1rem;
   font-size: 0.85rem;
@@ -358,25 +352,28 @@
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   overflow: hidden;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
 }
 
 /* Gradient backgrounds for each button */
-.links button:nth-child(1) {
+.links a:nth-child(1) {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 }
 
-.links button:nth-child(2) {
+.links a:nth-child(2) {
+  background: linear-gradient(135deg, #6dd5c3 0%, #4facce 100%);
+}
+
+.links a:nth-child(3) {
+  background: linear-gradient(135deg, #d4a574 0%, #c9941f 100%);
+}
+
+.links a:nth-child(4) {
   background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
 }
 
-.links button:nth-child(3) {
-  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-}
-
 /* Multiple floating icons from different positions */
-.links button::before,
-.links button::after {
+.links a::before,
+.links a::after {
   position: absolute;
   font-size: 0.7rem;
   font-weight: 700;
@@ -385,15 +382,15 @@
   pointer-events: none;
 }
 
-/* First button - Dollar signs from multiple positions */
-.links button:nth-child(1)::before {
-  content: "$";
+/* First button - Percent and dollar signs */
+.links a:nth-child(1)::before {
+  content: "%";
   left: 10%;
   color: #ffd700;
   animation: floatIcon1 3s infinite ease-in-out;
 }
 
-.links button:nth-child(1)::after {
+.links a:nth-child(1)::after {
   content: "$";
   right: 15%;
   color: #ffd700;
@@ -401,27 +398,41 @@
 }
 
 /* Second button - Dollar and sparkle */
-.links button:nth-child(2)::before {
+.links a:nth-child(2)::before {
   content: "$";
   left: 20%;
-  color: #fff59d;
+  color: #e0f7fa;
   animation: floatIcon3 2.8s infinite ease-in-out;
 }
 
-.links button:nth-child(2)::after {
+.links a:nth-child(2)::after {
   content: "✨";
   right: 10%;
   animation: floatIcon4 3.2s infinite ease-in-out 1s;
 }
 
-/* Third button - Stars from multiple positions */
-.links button:nth-child(3)::before {
+/* Third button - Dollar and gold sparkle */
+.links a:nth-child(3)::before {
+  content: "$";
+  left: 15%;
+  color: #ffe082;
+  animation: floatIcon1 3s infinite ease-in-out 0.5s;
+}
+
+.links a:nth-child(3)::after {
+  content: "💰";
+  right: 20%;
+  animation: floatIcon2 3.3s infinite ease-in-out 1.2s;
+}
+
+/* Fourth button - Stars */
+.links a:nth-child(4)::before {
   content: "⭐";
   left: 15%;
   animation: floatIcon1 3s infinite ease-in-out 0.5s;
 }
 
-.links button:nth-child(3)::after {
+.links a:nth-child(4)::after {
   content: "⭐";
   right: 20%;
   animation: floatIcon2 3.3s infinite ease-in-out 1.2s;
@@ -513,9 +524,9 @@
 }
 
 /* Enhanced bubble system - multiple bubbles */
-.links button .bubble-1,
-.links button .bubble-2,
-.links button .bubble-3 {
+.links a .bubble-1,
+.links a .bubble-2,
+.links a .bubble-3 {
   position: absolute;
   width: 12px;
   height: 12px;
@@ -526,8 +537,8 @@
   opacity: 0;
 }
 
-/* Button 1 - Purple bubbles from different positions */
-.links button:nth-child(1) .bubble-1 {
+/* Button 1 - Purple bubbles */
+.links a:nth-child(1) .bubble-1 {
   background: radial-gradient(
     circle at 30% 30%,
     rgba(255, 255, 255, 0.9) 0%,
@@ -539,7 +550,7 @@
   animation: floatBubble1 4s infinite ease-in-out;
 }
 
-.links button:nth-child(1) .bubble-2 {
+.links a:nth-child(1) .bubble-2 {
   background: radial-gradient(
     circle at 30% 30%,
     rgba(255, 255, 255, 0.8) 0%,
@@ -551,7 +562,7 @@
   animation: floatBubble2 3.5s infinite ease-in-out 0.7s;
 }
 
-.links button:nth-child(1) .bubble-3 {
+.links a:nth-child(1) .bubble-3 {
   background: radial-gradient(
     circle at 30% 30%,
     rgba(255, 255, 255, 0.9) 0%,
@@ -565,8 +576,86 @@
   animation: floatBubble3 4.2s infinite ease-in-out 1.2s;
 }
 
-/* Button 2 - Pink bubbles */
-.links button:nth-child(2) .bubble-1 {
+/* Button 2 - Soft aqua bubbles */
+.links a:nth-child(2) .bubble-1 {
+  background: radial-gradient(
+    circle at 30% 30%,
+    rgba(255, 255, 255, 0.85) 0%,
+    rgba(109, 213, 195, 0.5) 40%,
+    rgba(109, 213, 195, 0.2) 100%
+  );
+  left: 35%;
+  bottom: -15px;
+  animation: floatBubble1 3.8s infinite ease-in-out 0.5s;
+}
+
+.links a:nth-child(2) .bubble-2 {
+  background: radial-gradient(
+    circle at 30% 30%,
+    rgba(255, 255, 255, 0.8) 0%,
+    rgba(79, 172, 206, 0.45) 40%,
+    rgba(79, 172, 206, 0.2) 100%
+  );
+  right: 25%;
+  bottom: -15px;
+  animation: floatBubble2 4.1s infinite ease-in-out 1s;
+}
+
+.links a:nth-child(2) .bubble-3 {
+  background: radial-gradient(
+    circle at 30% 30%,
+    rgba(255, 255, 255, 0.85) 0%,
+    rgba(128, 222, 234, 0.4) 40%,
+    rgba(128, 222, 234, 0.15) 100%
+  );
+  left: 60%;
+  bottom: -15px;
+  width: 9px;
+  height: 9px;
+  animation: floatBubble3 3.6s infinite ease-in-out 0.3s;
+}
+
+/* Button 3 - Soft golden bubbles */
+.links a:nth-child(3) .bubble-1 {
+  background: radial-gradient(
+    circle at 30% 30%,
+    rgba(255, 255, 255, 0.85) 0%,
+    rgba(212, 165, 116, 0.5) 40%,
+    rgba(212, 165, 116, 0.2) 100%
+  );
+  left: 30%;
+  bottom: -15px;
+  animation: floatBubble1 4s infinite ease-in-out 0.8s;
+}
+
+.links a:nth-child(3) .bubble-2 {
+  background: radial-gradient(
+    circle at 30% 30%,
+    rgba(255, 255, 255, 0.8) 0%,
+    rgba(201, 148, 31, 0.45) 40%,
+    rgba(201, 148, 31, 0.2) 100%
+  );
+  right: 35%;
+  bottom: -15px;
+  animation: floatBubble2 3.7s infinite ease-in-out 0.4s;
+}
+
+.links a:nth-child(3) .bubble-3 {
+  background: radial-gradient(
+    circle at 30% 30%,
+    rgba(255, 255, 255, 0.85) 0%,
+    rgba(218, 180, 100, 0.4) 40%,
+    rgba(218, 180, 100, 0.15) 100%
+  );
+  left: 55%;
+  bottom: -15px;
+  width: 11px;
+  height: 11px;
+  animation: floatBubble3 3.9s infinite ease-in-out 1.5s;
+}
+
+/* Button 4 - Pink bubbles */
+.links a:nth-child(4) .bubble-1 {
   background: radial-gradient(
     circle at 30% 30%,
     rgba(255, 255, 255, 0.9) 0%,
@@ -578,7 +667,7 @@
   animation: floatBubble1 3.8s infinite ease-in-out 0.5s;
 }
 
-.links button:nth-child(2) .bubble-2 {
+.links a:nth-child(4) .bubble-2 {
   background: radial-gradient(
     circle at 30% 30%,
     rgba(255, 255, 255, 0.85) 0%,
@@ -590,7 +679,7 @@
   animation: floatBubble2 4.1s infinite ease-in-out 1s;
 }
 
-.links button:nth-child(2) .bubble-3 {
+.links a:nth-child(4) .bubble-3 {
   background: radial-gradient(
     circle at 30% 30%,
     rgba(255, 255, 255, 0.9) 0%,
@@ -602,45 +691,6 @@
   width: 9px;
   height: 9px;
   animation: floatBubble3 3.6s infinite ease-in-out 0.3s;
-}
-
-/* Button 3 - Cyan bubbles */
-.links button:nth-child(3) .bubble-1 {
-  background: radial-gradient(
-    circle at 30% 30%,
-    rgba(255, 255, 255, 0.9) 0%,
-    rgba(0, 242, 254, 0.6) 40%,
-    rgba(0, 242, 254, 0.2) 100%
-  );
-  left: 30%;
-  bottom: -15px;
-  animation: floatBubble1 4s infinite ease-in-out 0.8s;
-}
-
-.links button:nth-child(3) .bubble-2 {
-  background: radial-gradient(
-    circle at 30% 30%,
-    rgba(255, 255, 255, 0.85) 0%,
-    rgba(79, 172, 254, 0.5) 40%,
-    rgba(79, 172, 254, 0.2) 100%
-  );
-  right: 35%;
-  bottom: -15px;
-  animation: floatBubble2 3.7s infinite ease-in-out 0.4s;
-}
-
-.links button:nth-child(3) .bubble-3 {
-  background: radial-gradient(
-    circle at 30% 30%,
-    rgba(255, 255, 255, 0.9) 0%,
-    rgba(135, 206, 250, 0.5) 40%,
-    rgba(135, 206, 250, 0.2) 100%
-  );
-  left: 55%;
-  bottom: -15px;
-  width: 11px;
-  height: 11px;
-  animation: floatBubble3 3.9s infinite ease-in-out 1.5s;
 }
 
 /* Varied bubble animations */
@@ -699,7 +749,7 @@
 }
 
 /* Enhanced shimmer effect */
-.links button .shimmer {
+.links a .shimmer {
   position: absolute;
   top: -50%;
   left: -100%;
@@ -728,58 +778,60 @@
 }
 
 /* Hover effects */
-.links button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+.links a:hover {
   border-color: rgba(255, 255, 255, 0.6);
 }
 
-.links button:nth-child(1):hover {
+.links a:nth-child(1):hover {
   background: linear-gradient(135deg, #7c93ee 0%, #8b5cb8 100%);
 }
 
-.links button:nth-child(2):hover {
+.links a:nth-child(2):hover {
+  background: linear-gradient(135deg, #7ee0cc 0%, #5fbdd5 100%);
+}
+
+.links a:nth-child(3):hover {
+  background: linear-gradient(135deg, #ddb584 0%, #d4a438 100%);
+}
+
+.links a:nth-child(4):hover {
   background: linear-gradient(135deg, #f5a7fc 0%, #f76f83 100%);
 }
 
-.links button:nth-child(3):hover {
-  background: linear-gradient(135deg, #6bbdfe 0%, #1ffaff 100%);
-}
-
-.links button:hover .shimmer {
+.links a:hover .shimmer {
   animation: shimmer 2s infinite;
 }
 
-.links button:hover::before,
-.links button:hover::after {
+.links a:hover::before,
+.links a:hover::after {
   animation-duration: 2s;
 }
 
-.links button:hover .bubble-1,
-.links button:hover .bubble-2,
-.links button:hover .bubble-3 {
+.links a:hover .bubble-1,
+.links a:hover .bubble-2,
+.links a:hover .bubble-3 {
   animation-duration: 2.5s;
 }
 
-.links button:active {
+.links a:active {
   transform: translateY(0) scale(0.98);
 }
 
 @media (max-width: 425px) {
   .links {
-    padding: 0.5rem 0;
+    padding: 1.8rem 0 10px;
   }
-  .links button {
-    font-size: 0.75rem;
-    padding: 0.4rem 0.9rem;
+  .links a {
+    font-size: 0.8rem;
+    padding: 0.4rem 1rem;
   }
-  .links button::before,
-  .links button::after {
+  .links a::before,
+  .links a::after {
     font-size: 0.6rem;
   }
-  .links button .bubble-1,
-  .links button .bubble-2,
-  .links button .bubble-3 {
+  .links a .bubble-1,
+  .links a .bubble-2,
+  .links a .bubble-3 {
     width: 9px;
     height: 9px;
   }

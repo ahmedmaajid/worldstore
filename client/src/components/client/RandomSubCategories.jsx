@@ -26,7 +26,7 @@ const RandomSubCategories = () => {
           align-items: center;
           gap: 2rem;
           box-sizing: border-box;
-          margin-top:6rem
+          margin-top:10rem
         }
 
         .subcat-card {

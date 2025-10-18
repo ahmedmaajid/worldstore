@@ -49,79 +49,87 @@ export default function Navbar() {
       <header className="navbar">
         <div>
           <div className="navbar-left">
-          <button
-            className="icon-text"
-            style={{ zIndex: "3" }}
-            onClick={() => setSidebarOpen(true)}
-          >
-            <Menu strokeWidth={1.2} />
-            <span>Menu</span>
-          </button>
-        </div>
-
-        <a href="#" className="navbar-logo">
-          {/* World Store */}
-          {/* <img src="./World Store.jpg" alt="" /> */}
-          <img
-            src="/World_Store-removebg-preview.png
-          "
-            alt=""
-          />
-        </a>
-
-        <div className="navbar-right">
-          <button className="icon-text" onClick={handleClick}>
-            <span>Search Product</span>
-            <Search strokeWidth={1.2} />
-          </button>
-          <Link to="/cart" className="icon-text">
-            <span>Cart</span>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              style={{ width: "1.5em", height: "1.5em" }}
-              strokeWidth={1.2}
-              stroke="currentColor"
-              className="size-6"
+            <button
+              className="icon-text"
+              style={{ zIndex: "3" }}
+              onClick={() => setSidebarOpen(true)}
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 0 0-16.536-1.84M7.5 14.25 5.106 5.272M6 20.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm12.75 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z"
-              />
-            </svg>
-          </Link>
+              <Menu strokeWidth={1.2} />
+              <span>Menu</span>
+            </button>
+          </div>
 
-          {/* <button className="icon-btn">
+          <a href="#" className="navbar-logo">
+            {/* World Store */}
+            {/* <img src="./World Store.jpg" alt="" /> */}
+            <img
+              src="/World_Store-removebg-preview.png
+          "
+              alt=""
+            />
+          </a>
+
+          <div className="navbar-right">
+            <button className="icon-text" onClick={handleClick}>
+              <span>Search Product</span>
+              <Search strokeWidth={1.2} />
+            </button>
+            <Link to="/cart" className="icon-text">
+              <span>Cart</span>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                style={{ width: "1.5em", height: "1.5em" }}
+                strokeWidth={1.2}
+                stroke="currentColor"
+                className="size-6"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 0 0-16.536-1.84M7.5 14.25 5.106 5.272M6 20.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm12.75 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z"
+                />
+              </svg>
+            </Link>
+
+            {/* <button className="icon-btn">
             <Handbag strokeWidth={1.2} />
           </button> */}
-        </div>
+          </div>
         </div>
 
-       <div className="links">
-  <button>
+        <div className="links">
+  <Link to="/shop/filter/50-percent-off">
     <span className="shimmer"></span>
     <span className="bubble-1"></span>
     <span className="bubble-2"></span>
     <span className="bubble-3"></span>
-    Under LKR 5000
-  </button>
-  <button>
+    Up to 50% Off
+  </Link>
+  <Link to="/shop/filter/under-lkr-999">
     <span className="shimmer"></span>
     <span className="bubble-1"></span>
     <span className="bubble-2"></span>
     <span className="bubble-3"></span>
-    Under LKR 1000
-  </button>
-  <button>
+    Under LKR 999
+  </Link>
+   <Link to="/shop/filter/under-lkr-4999">
+    <span className="shimmer"></span>
+    <span className="bubble-1"></span>
+    <span className="bubble-2"></span>
+    <span className="bubble-3"></span>
+    Under LKR 4999
+  </Link>
+  {/* <Link to="/shop/filter/top-sold-products">
     <span className="shimmer"></span>
     <span className="bubble-1"></span>
     <span className="bubble-2"></span>
     <span className="bubble-3"></span>
     Top Sold Products
-  </button>
+  </Link> */}
 </div>
+
       </header>
       <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
