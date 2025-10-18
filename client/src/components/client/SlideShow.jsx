@@ -351,12 +351,15 @@ const Slideshow = () => {
             height: 70vh;
           }
 
+          .random-subcategories{
+          margin-top:0
+          }
           .slide-title {
-            font-size: 2.8rem;
+            font-size: 2.3rem !important;
           }
 
           .slide-description {
-            font-size: 0.9rem;
+            font-size: 0.9rem;  
           }
 
           .nav-arrow.left {
@@ -379,12 +382,13 @@ const Slideshow = () => {
           }
 
           .slide-title {
-            font-size: 2rem;
+            font-size: 1.5rem !important;
             letter-spacing: 0.12em;
           }
 
           .slide-description {
             font-size: 0.8rem;
+            text-transform: capitalize;
             letter-spacing: 0.06em;
           }
 
@@ -432,9 +436,7 @@ const Slideshow = () => {
             margin-bottom: 0.6rem;
           }
 
-          .slide-description {
-            font-size: 0.7rem;
-          }
+          
 
           .nav-arrow {
             width: 36px;
