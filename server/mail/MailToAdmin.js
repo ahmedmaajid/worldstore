@@ -1,9 +1,167 @@
 import { sendMail, getBaseTemplate } from "./mail.js";
 
+// export const newOrderAlert = async (order) => {
+//     // Process items with proper attribute handling (same as customer email)
+//     const itemsHtml = order.items.map(item => {
+//         // Handle attributes properly
+//         let attributesText = '';
+//         if (item.attributes) {
+//             if (item.attributes instanceof Map) {
+//                 const attrs = Array.from(item.attributes.entries())
+//                     .map(([key, value]) => `${key}: ${value}`)
+//                     .join(', ');
+//                 attributesText = attrs;
+//             } else if (typeof item.attributes === 'object') {
+//                 const attrs = Object.entries(item.attributes)
+//                     .map(([key, value]) => `${key}: ${value}`)
+//                     .join(', ');
+//                 attributesText = attrs;
+//             }
+//         }
+
+//         return `
+//             <div class="item">
+//                 <div class="item-info">
+//                     <div style="display: flex; align-items: flex-start; gap: 16px;">
+//                         ${item.image ? `
+//                             <div style="flex-shrink: 0;">
+//                                 <img src="${item.image}" alt="${item.name}" style="width: 60px; height: 60px; object-fit: cover; border-radius: 4px; border: 1px solid #e9ecef;">
+//                             </div>
+//                         ` : ''}
+//                         <div style="flex: 1;">
+//                             <div class="item-name">${item.name}</div>
+//                             ${attributesText ? `<div class="item-variant">${attributesText}</div>` : ''}
+//                             <div style="margin-top: 8px; display: flex; gap: 16px; align-items: center; font-size: 14px; color: #6c757d;">
+//                                 <span>Qty: ${item.quantity}</span>
+//                                 <span>•</span>
+//                                 <span>Unit: LKR ${item.price.toFixed(2)}</span>
+//                             </div>
+//                         </div>
+//                         <div style="text-align: right;">
+//                             <div class="item-price">LKR ${item.totalPrice.toFixed(2)}</div>
+//                         </div>
+//                     </div>
+//                 </div>
+//             </div>
+//         `;
+//     }).join('');
+
+//     const content = `
+//         <div class="email-body">
+//             <div class="greeting">
+//                 New Order Received
+//             </div>
+
+//             <p style="margin-bottom: 32px; color: #d32f2f; font-weight: 500;">A new order has been placed and requires your attention.</p>
+
+//             <div class="content-section">
+//                 <div class="section-title">Order Information</div>
+//                 <div class="order-details">
+//                     <div class="order-header">
+//                         <div class="order-number">Order #${order.orderNumber}</div>
+//                         <div class="order-date">Placed on ${new Date(order.createdAt).toLocaleDateString('en-US', {
+//         weekday: 'long',
+//         year: 'numeric',
+//         month: 'long',
+//         day: 'numeric',
+//         hour: '2-digit',
+//         minute: '2-digit'
+//     })}</div>
+//                     </div>
+
+//                     <div class="order-items">
+//                         ${itemsHtml}
+//                     </div>
+
+//                     <div class="order-summary">
+//                         <div class="summary-row">
+//                             <span class="summary-label">Subtotal</span>
+//                             <span class="summary-value">LKR ${order.subtotal.toFixed(2)}</span>
+//                         </div>
+//                         ${order.discount > 0 ? `
+//                         <div class="summary-row">
+//                             <span class="summary-label">Discount</span>
+//                             <span class="summary-value">-LKR ${order.discount.toFixed(2)}</span>
+//                         </div>
+//                         ` : ''}
+//                         <div class="summary-row">
+//                             <span class="summary-label">Shipping</span>
+//                             <span class="summary-value">${order.shippingFee === 0 ? 'Free' : 'LKR ' + order.shippingFee.toFixed(2)}</span>
+//                         </div>
+//                         <div class="summary-row">
+//                             <span class="summary-label">Total</span>
+//                             <span class="summary-value">LKR ${order.total.toFixed(2)}</span>
+//                         </div>
+//                     </div>
+//                 </div>
+//             </div>
+
+//             <div class="content-section">
+//                 <div class="section-title">Customer Information</div>
+//                 <div class="info-box">
+//                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+//                         <div>
+//                             <div style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; color: #6c757d; margin-bottom: 4px;">Customer Name</div>
+//                             <div style="font-weight: 500;">${order.shippingAddress.firstName} ${order.shippingAddress.lastName}</div>
+//                         </div>
+//                         <div>
+//                             <div style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; color: #6c757d; margin-bottom: 4px;">Order Status</div>
+//                             <div style="font-weight: 500; text-transform: capitalize;">${order.status || 'Processing'}</div>
+//                         </div>
+//                     </div>
+
+//                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+//                         <div>
+//                             <div style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; color: #6c757d; margin-bottom: 4px;">Email</div>
+//                             <div><a href="mailto:${order.shippingAddress.email}" style="color: #1a1a1a; text-decoration: none;">${order.shippingAddress.email}</a></div>
+//                         </div>
+//                         <div>
+//                             <div style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; color: #6c757d; margin-bottom: 4px;">Phone</div>
+//                             <div><a href="tel:${order.shippingAddress.phone}" style="color: #1a1a1a; text-decoration: none;">${order.shippingAddress.phone || 'Not provided'}</a></div>
+//                         </div>
+//                     </div>
+//                 </div>
+//             </div>
+
+//             <div class="content-section">
+//                 <div class="section-title">Shipping Address</div>
+//                 <div class="shipping-info">
+//                     <div class="address">
+//                         ${order.shippingAddress.firstName} ${order.shippingAddress.lastName}<br>
+//                         ${order.shippingAddress.address}<br>
+//                         ${order.shippingAddress.city}, ${order.shippingAddress.postalCode}<br>
+//                         ${order.shippingAddress.country}
+//                     </div>
+//                 </div>
+//             </div>
+
+
+//             <div style="background-color: #fff3cd; border: 1px solid #ffeaa7; border-radius: 6px; padding: 20px; margin-top: 24px;">
+//                 <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+//                     <div style="width: 16px; height: 16px; background-color: #f39c12; border-radius: 50%;"></div>
+//                     <div style="font-weight: 500; color: #856404;">Action Required</div>
+//                 </div>
+//                 <div style="font-size: 14px; color: #856404; line-height: 1.6;">
+//                     This order needs to be processed and prepared for shipment. Please review the items and update the order status accordingly.
+//                 </div>
+//             </div>
+//         </div>
+//     `;
+
+//     const html = getBaseTemplate(content, `New order #${order.orderNumber} received - LKR ${order.total.toFixed(2)}`);
+
+//     return await sendMail({
+//         to: process.env.ADMIN_EMAIL,
+//         subject: `🔔 New Order #${order.orderNumber} - LKR ${order.total.toFixed(2)}`,
+//         html
+//     });
+// };
+
+// Update the base template with more refined styling
+
 export const newOrderAlert = async (order) => {
-    // Process items with proper attribute handling (same as customer email)
+    // Process items with proper attribute handling
     const itemsHtml = order.items.map(item => {
-        // Handle attributes properly
         let attributesText = '';
         if (item.attributes) {
             if (item.attributes instanceof Map) {
@@ -20,46 +178,57 @@ export const newOrderAlert = async (order) => {
         }
 
         return `
-            <div class="item">
-                <div class="item-info">
-                    <div style="display: flex; align-items: flex-start; gap: 16px;">
-                        ${item.image ? `
-                            <div style="flex-shrink: 0;">
-                                <img src="${item.image}" alt="${item.name}" style="width: 60px; height: 60px; object-fit: cover; border-radius: 4px; border: 1px solid #e9ecef;">
-                            </div>
-                        ` : ''}
-                        <div style="flex: 1;">
-                            <div class="item-name">${item.name}</div>
-                            ${attributesText ? `<div class="item-variant">${attributesText}</div>` : ''}
-                            <div style="margin-top: 8px; display: flex; gap: 16px; align-items: center; font-size: 14px; color: #6c757d;">
-                                <span>Qty: ${item.quantity}</span>
-                                <span>•</span>
-                                <span>Unit: LKR ${item.price.toFixed(2)}</span>
-                            </div>
-                        </div>
-                        <div style="text-align: right;">
-                            <div class="item-price">LKR ${item.totalPrice.toFixed(2)}</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <tr>
+                <td style="padding: 20px; border-bottom: 1px solid #f1f3f4;">
+                    <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                        <tr>
+                            ${item.image ? `
+                                <td width="80" style="padding-right: 16px; vertical-align: top;">
+                                    <img src="${item.image}" alt="${item.name}" style="width: 70px; height: 70px; object-fit: cover; border-radius: 6px; border: 1px solid #e9ecef; display: block;">
+                                </td>
+                            ` : ''}
+                            <td style="vertical-align: top;">
+                                <div style="font-size: 16px; font-weight: 500; color: #1a1a1a; margin-bottom: 6px;">${item.name}</div>
+                                ${attributesText ? `<div style="font-size: 14px; color: #6c757d; margin-bottom: 8px;">${attributesText}</div>` : ''}
+                                <div style="font-size: 14px; color: #6c757d;">
+                                    Qty: ${item.quantity} × LKR ${item.price.toFixed(2)}
+                                </div>
+                            </td>
+                            <td style="vertical-align: top; text-align: right; white-space: nowrap; padding-left: 16px;">
+                                <div style="font-size: 16px; font-weight: 500; color: #1a1a1a;">LKR ${item.totalPrice.toFixed(2)}</div>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
         `;
     }).join('');
 
     const content = `
-        <div class="email-body">
-            <div class="greeting">
+        <div style="padding: 40px 40px 20px 40px;">
+            <!-- Greeting -->
+            <div style="font-size: 24px; font-weight: 500; color: #1a1a1a; margin-bottom: 16px;">
                 New Order Received
             </div>
             
-            <p style="margin-bottom: 32px; color: #d32f2f; font-weight: 500;">A new order has been placed and requires your attention.</p>
+            <div style="background-color: #fff3cd; border-left: 4px solid #f39c12; padding: 16px 20px; margin-bottom: 32px; border-radius: 4px;">
+                <div style="font-size: 14px; color: #856404; line-height: 1.6;">
+                    ⚠️ A new order has been placed and requires your attention.
+                </div>
+            </div>
             
-            <div class="content-section">
-                <div class="section-title">Order Information</div>
-                <div class="order-details">
-                    <div class="order-header">
-                        <div class="order-number">Order #${order.orderNumber}</div>
-                        <div class="order-date">Placed on ${new Date(order.createdAt).toLocaleDateString('en-US', {
+            <!-- Order Information -->
+            <div style="margin-bottom: 40px;">
+                <div style="font-size: 14px; font-weight: 600; color: #1a1a1a; margin-bottom: 16px; text-transform: uppercase; letter-spacing: 1px;">
+                    Order Information
+                </div>
+                
+                <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #ffffff; border: 1px solid #e9ecef; border-radius: 8px; overflow: hidden;">
+                    <!-- Order Header -->
+                    <tr>
+                        <td style="background-color: #f8f9fa; padding: 20px 24px; border-bottom: 1px solid #e9ecef;">
+                            <div style="font-size: 18px; font-weight: 600; color: #1a1a1a; margin-bottom: 4px;">Order #${order.orderNumber}</div>
+                            <div style="font-size: 14px; color: #6c757d;">${new Date(order.createdAt).toLocaleDateString('en-US', {
         weekday: 'long',
         year: 'numeric',
         month: 'long',
@@ -67,67 +236,91 @@ export const newOrderAlert = async (order) => {
         hour: '2-digit',
         minute: '2-digit'
     })}</div>
-                    </div>
+                        </td>
+                    </tr>
                     
-                    <div class="order-items">
-                        ${itemsHtml}
-                    </div>
+                    <!-- Order Items -->
+                    ${itemsHtml}
                     
-                    <div class="order-summary">
-                        <div class="summary-row">
-                            <span class="summary-label">Subtotal</span>
-                            <span class="summary-value">LKR ${order.subtotal.toFixed(2)}</span>
-                        </div>
-                        ${order.discount > 0 ? `
-                        <div class="summary-row">
-                            <span class="summary-label">Discount</span>
-                            <span class="summary-value">-LKR ${order.discount.toFixed(2)}</span>
-                        </div>
-                        ` : ''}
-                        <div class="summary-row">
-                            <span class="summary-label">Shipping</span>
-                            <span class="summary-value">${order.shippingFee === 0 ? 'Free' : 'LKR ' + order.shippingFee.toFixed(2)}</span>
-                        </div>
-                        <div class="summary-row">
-                            <span class="summary-label">Total</span>
-                            <span class="summary-value">LKR ${order.total.toFixed(2)}</span>
-                        </div>
-                    </div>
-                </div>
+                    <!-- Order Summary -->
+                    <tr>
+                        <td style="background-color: #f8f9fa; padding: 20px 24px;">
+                            <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                                <tr>
+                                    <td style="padding: 6px 0; font-size: 14px; color: #6c757d;">Subtotal</td>
+                                    <td style="padding: 6px 0; font-size: 14px; color: #1a1a1a; text-align: right;">LKR ${order.subtotal.toFixed(2)}</td>
+                                </tr>
+                                ${order.discount > 0 ? `
+                                <tr>
+                                    <td style="padding: 6px 0; font-size: 14px; color: #6c757d;">Discount</td>
+                                    <td style="padding: 6px 0; font-size: 14px; color: #1a1a1a; text-align: right;">-LKR ${order.discount.toFixed(2)}</td>
+                                </tr>
+                                ` : ''}
+                                <tr>
+                                    <td style="padding: 6px 0; font-size: 14px; color: #6c757d;">Shipping</td>
+                                    <td style="padding: 6px 0; font-size: 14px; color: #1a1a1a; text-align: right;">${order.shippingFee === 0 ? 'Free' : 'LKR ' + order.shippingFee.toFixed(2)}</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding-top: 12px; padding-bottom: 6px; border-top: 2px solid #dee2e6; font-size: 16px; font-weight: 600; color: #1a1a1a;">Total</td>
+                                    <td style="padding-top: 12px; padding-bottom: 6px; border-top: 2px solid #dee2e6; font-size: 16px; font-weight: 600; color: #1a1a1a; text-align: right;">LKR ${order.total.toFixed(2)}</td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                </table>
             </div>
 
-            <div class="content-section">
-                <div class="section-title">Customer Information</div>
-                <div class="info-box">
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
-                        <div>
-                            <div style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; color: #6c757d; margin-bottom: 4px;">Customer Name</div>
-                            <div style="font-weight: 500;">${order.shippingAddress.firstName} ${order.shippingAddress.lastName}</div>
-                        </div>
-                        <div>
-                            <div style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; color: #6c757d; margin-bottom: 4px;">Order Status</div>
-                            <div style="font-weight: 500; text-transform: capitalize;">${order.status || 'Processing'}</div>
-                        </div>
-                    </div>
-                    
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
-                        <div>
-                            <div style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; color: #6c757d; margin-bottom: 4px;">Email</div>
-                            <div><a href="mailto:${order.shippingAddress.email}" style="color: #1a1a1a; text-decoration: none;">${order.shippingAddress.email}</a></div>
-                        </div>
-                        <div>
-                            <div style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; color: #6c757d; margin-bottom: 4px;">Phone</div>
-                            <div><a href="tel:${order.shippingAddress.phone}" style="color: #1a1a1a; text-decoration: none;">${order.shippingAddress.phone || 'Not provided'}</a></div>
-                        </div>
-                    </div>
+            <!-- Customer Information -->
+            <div style="margin-bottom: 40px;">
+                <div style="font-size: 14px; font-weight: 600; color: #1a1a1a; margin-bottom: 16px; text-transform: uppercase; letter-spacing: 1px;">
+                    Customer Information
                 </div>
+                
+                <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #f8f9fa; border: 1px solid #e9ecef; border-radius: 8px; padding: 24px;">
+                    <tr>
+                        <td style="padding-bottom: 20px;">
+                            <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                                <tr>
+                                    <td width="50%" style="vertical-align: top; padding-right: 12px;">
+                                        <div style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; color: #6c757d; margin-bottom: 6px;">Customer Name</div>
+                                        <div style="font-size: 15px; font-weight: 500; color: #1a1a1a;">${order.shippingAddress.firstName} ${order.shippingAddress.lastName}</div>
+                                    </td>
+                                    <td width="50%" style="vertical-align: top; padding-left: 12px;">
+                                        <div style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; color: #6c757d; margin-bottom: 6px;">Order Status</div>
+                                        <div style="font-size: 15px; font-weight: 500; color: #1a1a1a; text-transform: capitalize;">${order.status || 'Processing'}</div>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                                <tr>
+                                    <td width="50%" style="vertical-align: top; padding-right: 12px;">
+                                        <div style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; color: #6c757d; margin-bottom: 6px;">Email</div>
+                                        <div style="font-size: 15px;"><a href="mailto:${order.shippingAddress.email}" style="color: #1a1a1a; text-decoration: none;">${order.shippingAddress.email}</a></div>
+                                    </td>
+                                    <td width="50%" style="vertical-align: top; padding-left: 12px;">
+                                        <div style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; color: #6c757d; margin-bottom: 6px;">Phone</div>
+                                        <div style="font-size: 15px;"><a href="tel:${order.shippingAddress.phone}" style="color: #1a1a1a; text-decoration: none;">${order.shippingAddress.phone || 'Not provided'}</a></div>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                </table>
             </div>
 
-            <div class="content-section">
-                <div class="section-title">Shipping Address</div>
-                <div class="shipping-info">
-                    <div class="address">
-                        ${order.shippingAddress.firstName} ${order.shippingAddress.lastName}<br>
+            <!-- Shipping Address -->
+            <div style="margin-bottom: 40px;">
+                <div style="font-size: 14px; font-weight: 600; color: #1a1a1a; margin-bottom: 16px; text-transform: uppercase; letter-spacing: 1px;">
+                    Shipping Address
+                </div>
+                
+                <div style="background-color: #f8f9fa; border: 1px solid #e9ecef; border-radius: 8px; padding: 24px;">
+                    <div style="font-size: 15px; line-height: 1.8; color: #1a1a1a;">
+                        <strong>${order.shippingAddress.firstName} ${order.shippingAddress.lastName}</strong><br>
                         ${order.shippingAddress.address}<br>
                         ${order.shippingAddress.city}, ${order.shippingAddress.postalCode}<br>
                         ${order.shippingAddress.country}
@@ -135,16 +328,19 @@ export const newOrderAlert = async (order) => {
                 </div>
             </div>
 
-
-            <div style="background-color: #fff3cd; border: 1px solid #ffeaa7; border-radius: 6px; padding: 20px; margin-top: 24px;">
-                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
-                    <div style="width: 16px; height: 16px; background-color: #f39c12; border-radius: 50%;"></div>
-                    <div style="font-weight: 500; color: #856404;">Action Required</div>
-                </div>
-                <div style="font-size: 14px; color: #856404; line-height: 1.6;">
-                    This order needs to be processed and prepared for shipment. Please review the items and update the order status accordingly.
-                </div>
-            </div>
+            <!-- Action Required Box -->
+            <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #fff8e1; border: 2px solid #ffd54f; border-radius: 8px; margin-top: 32px;">
+                <tr>
+                    <td style="padding: 24px;">
+                        <div style="font-size: 16px; font-weight: 600; color: #f57c00; margin-bottom: 8px;">
+                            ⚡ Action Required
+                        </div>
+                        <div style="font-size: 14px; color: #e65100; line-height: 1.6;">
+                            This order needs to be processed and prepared for shipment. Please review the items and update the order status accordingly.
+                        </div>
+                    </td>
+                </tr>
+            </table>
         </div>
     `;
 
@@ -156,8 +352,6 @@ export const newOrderAlert = async (order) => {
         html
     });
 };
-
-// Update the base template with more refined styling
 export const orderCancellation = async (order) => {
     const content = `
         <div class="email-body">
