@@ -1,4 +1,4 @@
-import { sendMail, getBaseTemplate } from "./mailer.js";
+import { sendMail, getBaseTemplate } from "./mail.js";
 
 export const orderConfirmation = async (order) => {
     // Process items with proper attribute handling
