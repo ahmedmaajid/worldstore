@@ -422,7 +422,7 @@ const Slideshow = () => {
 
         @media (max-width: 480px) {
           .slideshow-wrapper {
-            height: 55vh;
+            height: 65vh;
           }
 
           .slide-content {

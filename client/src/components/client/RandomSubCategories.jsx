@@ -26,7 +26,7 @@ const RandomSubCategories = () => {
           align-items: center;
           gap: 2rem;
           box-sizing: border-box;
-          margin-top:10rem
+          margin-top: 10rem;
         }
 
         .subcat-card {
@@ -58,6 +58,12 @@ const RandomSubCategories = () => {
           letter-spacing: 0.3px;
         }
 
+        @media (max-width: 1024px) {
+          .random-subcategories {
+            margin-top: 5rem !important;
+          }
+        }
+
         @media (max-width: 768px) {
           .random-subcategories {
             padding: 1.5rem;
@@ -65,8 +71,8 @@ const RandomSubCategories = () => {
           }
 
           .subcat-image {
-            width: 80px;
-            height: 80px;
+            width: 85px;
+            height: 85px;
           }
 
           .subcat-name {
@@ -74,14 +80,58 @@ const RandomSubCategories = () => {
           }
         }
 
-        @media (max-width: 480px) {
+        @media (max-width: 564px) {
+          .random-subcategories {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.2rem;
+            padding: 1.5rem 1rem;
+          }
+
           .subcat-image {
             width: 70px;
             height: 70px;
           }
 
           .subcat-name {
-            font-size: 0.85rem;
+            font-size: 0.82rem;
+          }
+        }
+
+        @media (max-width: 480px) {
+          .random-subcategories {
+            // grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: repeat(auto-fit, minmax(85px, 1fr));
+
+            gap: 1rem;
+            padding: 1.2rem 0.8rem;
+            align-items: flex-start;
+          }
+
+          .subcat-image {
+            width: 65px;
+            height: 65px;
+          }
+
+          .subcat-name {
+            font-size: 0.78rem;
+          }
+        }
+
+        @media (max-width: 360px) {
+          .random-subcategories {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.8rem;
+            padding: 1rem 0.6rem;
+          }
+
+          .subcat-image {
+            width: 60px;
+            height: 60px;
+          }
+
+          .subcat-name {
+            font-size: 0.75rem;
           }
         }
       `}</style>

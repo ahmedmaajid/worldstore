@@ -242,6 +242,10 @@
     gap: 0.75rem;
   }
 
+  .hero {
+    height: unset !important;
+    min-height: unset !important;
+  }
   .subcategory-image {
     width: 45px;
     height: 45px;
